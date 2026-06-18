@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMTI · 阿蒙人格测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap');
+
+        :root {
+            --bg: #0a0a0f;
+            --card: #14141e;
+            --border: #2a2a3e;
+            --gold: #c9a84c;
+            --gold-dim: #8a7230;
+            --cream: #f5e6c8;
+            --glow: rgba(201,168,76,0.15);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--cream);
+            font-family: 'Noto Serif SC', 'SimSun', serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.03) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.02) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(60,10,10,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 680px;
+            padding: 20px;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 36px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 0 60px rgba(201,168,76,0.03);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            min-height: 460px;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.4;
+        }
+
+        .panel-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        #start-screen .logo {
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            background: linear-gradient(180deg, var(--cream) 0%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            position: relative;
+        }
+
+        #start-screen .logo-sub {
+            font-size: 14px;
+            letter-spacing: 6px;
+            color: var(--gold-dim);
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        #start-screen .subtitle {
+            margin-top: 24px;
+            font-size: 17px;
+            color: var(--cream);
+            opacity: 0.85;
+            line-height: 1.7;
+        }
+
+        .monocle-icon {
+            display: inline-block;
+            font-size: 40px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 6px var(--glow));
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 48px;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            font-family: inherit;
+            font-size: 16px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+            margin-top: 28px;
+        }
+
+        .btn:hover {
+            background: var(--gold);
+            color: var(--bg);
+            box-shadow: 0 0 30px var(--glow);
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        #quiz-screen { display: none; }
+
+        .progress-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--gold);
+            transition: width 0.5s ease;
+            border-radius: 2px;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: var(--gold-dim);
+            white-space: nowrap;
+            min-width: 48px;
+            text-align: right;
+        }
+
+        .question-tag {
+            font-size: 12px;
+            color: var(--gold-dim);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.6;
+            margin-bottom: 28px;
+            min-height: 60px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-size: 15px;
+            line-height: 1.5;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .option:hover {
+            border-color: var(--gold-dim);
+            background: rgba(201,168,76,0.05);
+        }
+
+        .option.selected {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.1);
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .option .option-label {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            line-height: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            font-size: 12px;
+            margin-right: 12px;
+            transition: all 0.25s;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-label {
+            border-color: var(--gold);
+            background: var(--gold);
+            color: var(--bg);
+        }
+
+        .option-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 28px;
+            gap: 12px;
+        }
+
+        .btn-small {
+            padding: 10px 28px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--cream);
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.25s;
+        }
+
+        .btn-small:hover {
+            border-color: var(--gold-dim);
+            color: var(--gold);
+        }
+
+        .btn-small:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-small.primary {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .btn-small.primary:hover {
+            background: var(--gold);
+            color: var(--bg);
+        }
+
+        .btn-small.submit {
+            background: var(--gold);
+            color: var(--bg);
+            border-color: var(--gold);
+            letter-spacing: 2px;
+        }
+
+        .btn-small.submit:hover {
+            box-shadow: 0 0 25px var(--glow);
+        }
+
+        #result-screen { display: none; }
+
+        .result-loading {
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .result-loading .spinner-text {
+            font-size: 14px;
+            color: var(--gold-dim);
+            margin-top: 16px;
+            letter-spacing: 2px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .result-content { display: none; }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .result-badge {
+            font-size: 12px;
+            color: var(--gold-dim);
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+
+        .result-type {
+            font-size: 34px;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(201,168,76,0.2);
+        }
+
+        .result-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--gold-dim);
+            margin: 16px auto;
+        }
+
+        .result-quote {
+            font-style: italic;
+            font-size: 16px;
+            color: var(--cream);
+            opacity: 0.8;
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+
+        .result-quote::before { content: '\201C'; }
+        .result-quote::after { content: '\201D'; }
+
+        .result-desc {
+            font-size: 15px;
+            line-height: 1.9;
+            color: var(--cream);
+            opacity: 0.85;
+            margin-bottom: 28px;
+            text-align: justify;
+        }
+
+        .result-stats {
+            margin-bottom: 28px;
+            margin-top: 12px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 3px;
+        }
+
+        .stat-name {
+            font-size: 11px;
+            min-width: 68px;
+            text-align: right;
+            color: var(--cream);
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        .stat-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 1s ease;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+        }
+
+        .stat-fill.top {
+            background: linear-gradient(90deg, var(--gold), #e8c94a);
+            box-shadow: 0 0 10px rgba(201,168,76,0.3);
+        }
+
+        .stat-pct {
+            font-size: 11px;
+            min-width: 28px;
+            color: var(--gold-dim);
+            text-align: right;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .result-actions .btn-small {
+            min-width: 120px;
+        }
+
+        .glint {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            animation: glint-fade 3s ease-in-out infinite;
+        }
+
+        @keyframes glint-fade {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 0.4; transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            .panel { padding: 28px 20px; }
+            #start-screen .logo { font-size: 36px; letter-spacing: 4px; }
+            .question-text { font-size: 17px; }
+            .option { font-size: 14px; padding: 12px 14px; }
+            .result-type { font-size: 26px; }
+            .btn { padding: 12px 32px; font-size: 14px; }
+            .stat-name { min-width: 52px; font-size: 10px; }
+        }
+
+        @media (max-width: 400px) {
+            .panel { padding: 20px 14px; border-radius: 12px; }
+            #start-screen .logo { font-size: 28px; }
+            .option { font-size: 13px; padding: 10px 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="panel" id="panel">
+
+        <div class="glint" style="top:12%;left:8%;animation-delay:0s;"></div>
+        <div class="glint" style="top:25%;right:12%;animation-delay:1s;"></div>
+        <div class="glint" style="bottom:30%;left:15%;animation-delay:2s;"></div>
+        <div class="glint" style="top:60%;right:6%;animation-delay:0.5s;"></div>
+        <div class="glint" style="top:80%;left:5%;animation-delay:1.8s;"></div>
+        <div class="glint" style="bottom:10%;right:20%;animation-delay:2.5s;"></div>
+
+        <!-- ========== 开始页 ========== -->
+        <div id="start-screen">
+            <div class="panel-header">
+                <div class="monocle-icon">🧐</div>
+                <div class="logo">AMTI</div>
+                <div class="logo-sub">阿蒙 · 十八相人格测试</div>
+            </div>
+            <div style="text-align:center;">
+                <div class="subtitle">
+                    你体内流淌着哪一只阿蒙的血？<br>
+                    十八种面相，十八种欺骗——<br>来测测你是本体蒙、有趣蒙、还是滴滴大蒙？
+                </div>
+                <button class="btn" onclick="startQuiz()">开始测试</button>
+            </div>
+        </div>
+
+        <!-- ========== 测试页 ========== -->
+        <div id="quiz-screen">
+            <div class="progress-wrap">
+                <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+                <span class="progress-text" id="progress-text">1/18</span>
+            </div>
+
+            <div class="question-tag" id="question-tag">· 第 1 问 ·</div>
+            <div class="question-text" id="question-text"></div>
+
+            <div class="options" id="options-container"></div>
+
+            <div class="nav-buttons">
+                <button class="btn-small" id="prev-btn" onclick="prevQuestion()" style="display:none;">← 上一题</button>
+                <button class="btn-small primary" id="next-btn" onclick="nextQuestion()">下一题 →</button>
+                <button class="btn-small submit" id="submit-btn" onclick="submitQuiz()" style="display:none;">查看结果</button>
+            </div>
+        </div>
+
+        <!-- ========== 结果页 ========== -->
+        <div id="result-screen">
+            <div class="result-loading" id="result-loading">
+                <div style="font-size:40px;animation: pulse 1s infinite;">🧐</div>
+                <div class="spinner-text">正在解析你体内的阿蒙因子...</div>
+            </div>
+
+            <div class="result-content" id="result-content">
+                <div class="result-header">
+                    <div class="result-badge">✦ 你的阿蒙人格 ✦</div>
+                    <div class="result-type" id="result-type"></div>
+                    <div class="result-divider"></div>
+                </div>
+                <div class="result-quote" id="result-quote"></div>
+                <div class="result-desc" id="result-desc"></div>
+                <div class="result-stats" id="result-stats"></div>
+                <div class="result-actions">
+                    <button class="btn-small" onclick="restartQuiz()">重新测试</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--border);letter-spacing:1px;">
+        献给诡秘之主 · 「命运之蛇」
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  十八种阿蒙人格
+// ============================================================
+const TYPES = [
+    {
+        id: 'primeval',
+        name: '本体蒙',
+        quote: '我就是规则。',
+        desc: '你是所有阿蒙的源头，最纯粹也最强大。你不需要玩弄诡计，因为你本身就是规则的制定者。居高临下，俯瞰众生——你的存在本身就是最大的欺骗。旁人绞尽脑汁算计，而你只需存在，就足以让一切布局作废。',
+    },
+    {
+        id: 'monocle',
+        name: '单片眼镜蒙',
+        quote: '你看到的，只是我想让你看到的。',
+        desc: '你优雅、从容、一切尽在掌握。单片眼镜是你的标志，洞察一切表象背后的真实。你从不急躁，因为每一步都已经算好。你的敌人甚至不知道自己什么时候已经落入了圈套。',
+    },
+    {
+        id: 'bell',
+        name: '敲钟蒙',
+        quote: '时候到了。',
+        desc: '你热爱戏剧性的登场，在关键时刻敲响命运的钟声。你不在意过程多长，只要结局足够精彩。每一次出场都是一场表演，每一个节点都踩在命运的鼓点上。',
+    },
+    {
+        id: 'messenger',
+        name: '信使蒙',
+        quote: '消息就是力量。',
+        desc: '你游走于各方势力之间，传递信息也窃取秘密。你是情报的枢纽，知道谁需要什么、谁知道什么。没有你的消息网，这个世界会安静很多——也会无趣很多。',
+    },
+    {
+        id: 'parasite',
+        name: '寄生蒙',
+        quote: '你是我最好的朋友，对吗？',
+        desc: '你善于潜伏和寄生，借他人之手达成自己的目的。你不喜欢正面冲突，更享受在暗处操控一切的感觉。你的棋子甚至不知道自己被操控——这才是最高境界。',
+    },
+    {
+        id: 'worm',
+        name: '时之虫蒙',
+        quote: '时间？那只是个概念。',
+        desc: '你游走于时间的缝隙中，神秘莫测，无处不在。你不受线性时间的约束，过去、现在、未来对你来说不过是不同的坐标。没人知道你下一秒会出现在哪里——甚至你自己也不知道。',
+    },
+    {
+        id: 'trickster',
+        name: '愚弄蒙',
+        quote: '你相信我说的话？',
+        desc: '你以愚弄他人为乐，深谙人性的弱点。真话和假话在你嘴里毫无区别，只要能达到目的。你是最纯粹的欺骗者——不是为了利益，只是为了看看对方脸上的表情。',
+    },
+    {
+        id: 'thief',
+        name: '盗贼蒙',
+        quote: '现在它是我的了。',
+        desc: '你想要什么，就直接拿走。不玩复杂的诡计，不搞冗长的布局——偷窃本身就是一种艺术。你享受的是「得到」那一瞬间的快感，至于怎么得到的？那不重要。',
+    },
+    {
+        id: 'dream',
+        name: '窃梦蒙',
+        quote: '你确定这是你的记忆？',
+        desc: '你游走于现实与虚幻的边界，偷窃梦境与记忆。对你来说，真实不过是一层可以被改写的外衣。你进入他人的梦境，像翻阅一本打开的书——然后悄悄带走几页。没人知道自己的哪些记忆是真的，哪些是你植入的。',
+    },
+    {
+        id: 'thousand',
+        name: '千面蒙',
+        quote: '面具？这就是我的脸。',
+        desc: '你拥有无数张面孔，每一张都是你，每一张也都不是你。你可以在任何场合扮演任何角色，游刃有余，切换自如。没人知道你的真面目——也许连你自己也不知道。毕竟，当面具戴了太久，谁还记得下面是什么？',
+    },
+    {
+        id: 'fate',
+        name: '命运蒙',
+        quote: '你所谓的巧合，都是因果。',
+        desc: '你拨弄命运的丝线，享受操纵因果的乐趣。每一件看似偶然的小事，背后都有你的影子。你是最隐晦的操盘手，从不直接出手，但一切都在你的棋局之中。你以为是自己做的决定？再想想。',
+    },
+    {
+        id: 'mirror',
+        name: '镜中蒙',
+        quote: '你看到的是我，还是你自己？',
+        desc: '你存在于镜面世界与现实之间，亦真亦幻。别人能看到你，却永远摸不透你。你是倒影里的存在——看得见，抓不着。当别人以为抓住了你，他们抓住的只是一面镜子。而真正的你，已经在镜面的另一边微笑。',
+    },
+    {
+        id: 'interesting',
+        name: '有趣蒙',
+        quote: '严肃？那是最无聊的东西。',
+        desc: '你把世界当成一个巨大的游乐场，一切都值得一笑。你从不对任何事太认真——因为一旦认真，你就输了。你的玩笑里藏着刀，但被扎的人还在笑。你是最危险的喜剧演员，没人知道你的下一句话会是段子还是判决。',
+    },
+    {
+        id: 'observer',
+        name: '旁观蒙',
+        quote: '我看见了，但我不说。',
+        desc: '你永远站在人群的边缘，看着一切发生。你不参与，不干预，只是看着。你知道所有人的秘密，但没人知道你的存在。旁观者清——你是世界上最清醒的人，也是存在感最低的神。',
+    },
+    {
+        id: 'duke',
+        name: '公爵蒙',
+        quote: '跪下行礼吧。',
+        desc: '你有着与生俱来的贵族气度和压迫感。你不需要证明自己的地位，因为所有人都知道你是谁。优雅、威严、不容置疑——你天生就该坐在最高的位置上，俯瞰众生。',
+    },
+    {
+        id: 'fishing',
+        name: '钓鱼蒙',
+        quote: '咬钩了。',
+        desc: '你是个耐心的猎手，最擅长的就是等待。你撒下诱饵，然后静静地等着猎物自己送上门来。你享受的不是捕获的结果，而是鱼线绷紧的那一瞬间——猎物意识到自己上钩了，但已经太晚了。',
+    },
+    {
+        id: 'didi',
+        name: '滴滴大蒙',
+        quote: '你确定要小看我吗？',
+        desc: '你看起来很小——小到让人忍不住想揉你的头、忽视你的存在。而这正是你最致命的武器。所有人都因为你的「小」而放松警惕，等到反应过来的时候，已经来不及了。你是袖珍的灾厄，浓缩的恐惧。别被外表骗了。',
+    },
+    {
+        id: 'divine',
+        name: '神子蒙',
+        quote: '凡人，你在直视神明。',
+        desc: '你是神的子嗣，天生带着神圣的血脉。你的力量与生俱来，不需要后天学习或争取。你对凡人的一切争斗嗤之以鼻——因为他们争的一切，你生来就有。你无需欺骗，因为你的存在本身就是最大的神迹。',
+    },
+];
+
+// ============================================================
+//  题库 — 18 题，每题 4 选项
+// ============================================================
+const QUESTIONS = [
+    {
+        text: '你更倾向于哪种获取信息的方式？',
+        options: [
+            { text: '控制关键人物，从源头掌握情报', type: 'parasite' },
+            { text: '直接偷过来，省时省力', type: 'thief' },
+            { text: '编织信息网络，让别人主动告诉你', type: 'messenger' },
+            { text: '设下陷阱，等猎物自己暴露', type: 'monocle' },
+        ],
+    },
+    {
+        text: '面对阻碍时，你通常会怎么做？',
+        options: [
+            { text: '直接消除阻碍，用力量碾压过去', type: 'primeval' },
+            { text: '绕过规则，钻空子找到新路径', type: 'worm' },
+            { text: '把阻碍者变成自己的棋子', type: 'parasite' },
+            { text: '制造混乱，趁乱取利', type: 'trickster' },
+        ],
+    },
+    {
+        text: '你更享受以下哪种感觉？',
+        options: [
+            { text: '掌控全局、一切尽在手中的笃定', type: 'primeval' },
+            { text: '看着对方被耍得团团转的样子', type: 'trickster' },
+            { text: '在最后一刻揭晓真相的戏剧性反转', type: 'bell' },
+            { text: '占有欲得到满足的充实感', type: 'thief' },
+        ],
+    },
+    {
+        text: '你的行动风格更接近哪一种？',
+        options: [
+            { text: '优雅从容，没有计划外的变数', type: 'monocle' },
+            { text: '灵活多变，让对手永远猜不到下一步', type: 'worm' },
+            { text: '像钓鱼一样，耐心等到最合适的时机出手', type: 'fishing' },
+            { text: '高调出场，享受全场的注目', type: 'bell' },
+        ],
+    },
+    {
+        text: '你怎么看待「规则」这件事？',
+        options: [
+            { text: '规则就是我制定的', type: 'primeval' },
+            { text: '规则就是用来钻空子的', type: 'worm' },
+            { text: '规则是用来骗别人遵守的', type: 'trickster' },
+            { text: '有用的就利用，没用的就无视', type: 'thief' },
+        ],
+    },
+    {
+        text: '你更喜欢哪种类型的「帮手」？',
+        options: [
+            { text: '对自己绝对忠诚的被操控者', type: 'parasite' },
+            { text: '遍布各处的线人眼线', type: 'messenger' },
+            { text: '偶尔现身的关键引导者', type: 'bell' },
+            { text: '独来独往，穿梭于常人看不到的缝隙之间', type: 'worm' },
+        ],
+    },
+    {
+        text: '你最擅长的是什么？',
+        options: [
+            { text: '洞察谎言背后的真相', type: 'monocle' },
+            { text: '无处不在，没人能找到我', type: 'worm' },
+            { text: '把黑的说成白的，还让对方深信不疑', type: 'trickster' },
+            { text: '以最小的姿态，造成最大的破坏', type: 'didi' },
+        ],
+    },
+    {
+        text: '别人通常会怎么描述你？',
+        options: [
+            { text: '神秘而强大，令人不寒而栗', type: 'primeval' },
+            { text: '优雅但又让人后背发凉', type: 'monocle' },
+            { text: '总是出现在最戏剧性的时刻', type: 'bell' },
+            { text: '一个天生的统治者', type: 'duke' },
+        ],
+    },
+    {
+        text: '你对「梦境和现实」的界限怎么看？',
+        options: [
+            { text: '梦境也是另一种现实——有时比现实更真实', type: 'dream' },
+            { text: '我每天都在扮演不同的自己，哪有什么真正的「我」', type: 'thousand' },
+            { text: '一切都是命运的安排，没有偶然', type: 'fate' },
+            { text: '现实不过是一面镜子，折射出无数种可能', type: 'mirror' },
+        ],
+    },
+    {
+        text: '当你需要融入一个陌生环境时，你会？',
+        options: [
+            { text: '找到关键人物，潜入Ta的梦境了解一切', type: 'dream' },
+            { text: '迅速换上最适合这个场合的面具', type: 'thousand' },
+            { text: '观察因果链条，找到撬动局势的那个点', type: 'fate' },
+            { text: '先不急着行动，在边缘观察所有人的倒影', type: 'mirror' },
+        ],
+    },
+    {
+        text: '你如何看待「身份」这件事？',
+        options: [
+            { text: '身份是被记忆定义的，而记忆可以被改写', type: 'dream' },
+            { text: '我有无数个身份，每个都是我也都不是我', type: 'thousand' },
+            { text: '身份只是命运之网上的一个节点，随时可以替换', type: 'fate' },
+            { text: '镜里镜外，身份是相对的——取决于你在哪一边', type: 'mirror' },
+        ],
+    },
+    {
+        text: '你最想得到什么样的力量？',
+        options: [
+            { text: '进入并操控他人梦境的能力', type: 'dream' },
+            { text: '编织一张覆盖全世界的消息网', type: 'messenger' },
+            { text: '看穿并拨动命运因果的能力', type: 'fate' },
+            { text: '在镜像世界与现实之间穿梭的能力', type: 'mirror' },
+        ],
+    },
+    {
+        text: '你更看重什么？',
+        options: [
+            { text: '快乐，以及制造快乐的能力', type: 'interesting' },
+            { text: '洞察一切，但不干预的智慧', type: 'observer' },
+            { text: '血统与传承——那是力量的根源', type: 'divine' },
+            { text: '保持神秘，永远不让人看透', type: 'mirror' },
+        ],
+    },
+    {
+        text: '你最喜欢的消遣是什么？',
+        options: [
+            { text: '给平静的生活加点恶作剧', type: 'interesting' },
+            { text: '找个高处，静静地观察下面的人', type: 'observer' },
+            { text: '设个局，等着看谁会踩进来', type: 'fishing' },
+            { text: '随时换一张脸，去任何想去的地方', type: 'thousand' },
+        ],
+    },
+    {
+        text: '你如何展示自己的力量？',
+        options: [
+            { text: '以优雅和威严让人臣服', type: 'duke' },
+            { text: '示弱，让人低估你——然后大吃一惊', type: 'didi' },
+            { text: '借命运之手，不露痕迹', type: 'fate' },
+            { text: '不需要展示，存在本身就是力量', type: 'primeval' },
+        ],
+    },
+    {
+        text: '别人最容易怎么评价你？',
+        options: [
+            { text: '有趣但危险，不知道下一句是段子还是刀子', type: 'interesting' },
+            { text: '永远站在窗外往里看', type: 'observer' },
+            { text: '天生的领袖范儿', type: 'duke' },
+            { text: '看起来很好欺负——那是他们最后的想法', type: 'didi' },
+        ],
+    },
+    {
+        text: '你的行事准则是什么？',
+        options: [
+            { text: '愿者上钩，从不强求', type: 'fishing' },
+            { text: '玩弄所有人，包括自己', type: 'trickster' },
+            { text: '神的子嗣，无需向凡人解释', type: 'divine' },
+            { text: '真相重要，但有趣的真相更重要', type: 'monocle' },
+        ],
+    },
+    {
+        text: '你认为什么才是真正的「强大」？',
+        options: [
+            { text: '能让所有人笑，也能让所有人哭', type: 'interesting' },
+            { text: '旁观一切，却没人知道你存在', type: 'observer' },
+            { text: '像钓鱼一样，让猎物自己送上门', type: 'fishing' },
+            { text: '生而为神，与生俱来，无需证明', type: 'divine' },
+        ],
+    },
+];
+
+// ============================================================
+//  状态
+// ============================================================
+let currentQ = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+
+// ============================================================
+//  页面切换
+// ============================================================
+function startQuiz() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    renderQuestion();
+}
+
+function restartQuiz() {
+    currentQ = 0;
+    answers = new Array(QUESTIONS.length).fill(null);
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    renderQuestion();
+}
+
+// ============================================================
+//  渲染题目
+// ============================================================
+function renderQuestion() {
+    const q = QUESTIONS[currentQ];
+    const total = QUESTIONS.length;
+
+    document.getElementById('progress-fill').style.width = ((currentQ + 1) / total * 100) + '%';
+    document.getElementById('progress-text').textContent = `${currentQ + 1}/${total}`;
+    document.getElementById('question-tag').textContent = `· 第 ${currentQ + 1} 问 ·`;
+    document.getElementById('question-text').textContent = q.text;
+
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    const labels = ['A', 'B', 'C', 'D'];
+
+    q.options.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'option' + (answers[currentQ] === idx ? ' selected' : '');
+        div.innerHTML = `<div class="option-content"><span class="option-label">${labels[idx]}</span>${opt.text}</div>`;
+        div.addEventListener('click', () => selectOption(idx));
+        container.appendChild(div);
+    });
+
+    document.getElementById('prev-btn').style.display = currentQ === 0 ? 'none' : 'inline-block';
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+
+    if (currentQ === total - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-block';
+    } else {
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+    }
+
+    const hasAnswer = answers[currentQ] !== null;
+    nextBtn.disabled = !hasAnswer;
+    submitBtn.disabled = !hasAnswer;
+}
+
+// ============================================================
+//  选项选择
+// ============================================================
+function selectOption(idx) {
+    answers[currentQ] = idx;
+    const options = document.getElementById('options-container').children;
+    for (let i = 0; i < options.length; i++) {
+        options[i].classList.toggle('selected', i === idx);
+    }
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    nextBtn.disabled = false;
+    submitBtn.disabled = false;
+}
+
+// ============================================================
+//  导航
+// ============================================================
+function nextQuestion() {
+    if (answers[currentQ] === null) return;
+    if (currentQ < QUESTIONS.length - 1) {
+        currentQ++;
+        renderQuestion();
+    }
+}
+
+function prevQuestion() {
+    if (currentQ > 0) {
+        currentQ--;
+        renderQuestion();
+    }
+}
+
+// ============================================================
+//  提交 & 计算
+// ============================================================
+function submitQuiz() {
+    if (answers.some(a => a === null)) return;
+
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+    document.getElementById('result-loading').style.display = 'block';
+    document.getElementById('result-content').style.display = 'none';
+
+    setTimeout(() => {
+        const result = calculateResult();
+        showResult(result);
+    }, 1200);
+}
+
+function calculateResult() {
+    const scores = {};
+    TYPES.forEach(t => scores[t.id] = 0);
+
+    QUESTIONS.forEach((q, qi) => {
+        const chosen = answers[qi];
+        if (chosen === null) return;
+        const typeId = q.options[chosen].type;
+        scores[typeId] = (scores[typeId] || 0) + 1;
+    });
+
+    const sorted = Object.entries(scores)
+        .map(([id, count]) => ({ id, count }))
+        .sort((a, b) => b.count - a.count);
+
+    const top = sorted[0].id;
+    const total = answers.length;
+
+    const stats = sorted.map(s => ({
+        ...s,
+        pct: Math.round((s.count / total) * 100),
+    }));
+
+    return { top, stats };
+}
+
+function showResult(result) {
+    document.getElementById('result-loading').style.display = 'none';
+    document.getElementById('result-content').style.display = 'block';
+
+    const type = TYPES.find(t => t.id === result.top);
+    document.getElementById('result-type').textContent = type.name;
+    document.getElementById('result-quote').textContent = type.quote;
+    document.getElementById('result-desc').textContent = type.desc;
+
+    const statsEl = document.getElementById('result-stats');
+    statsEl.innerHTML = '';
+
+    const maxCount = Math.max(...result.stats.map(s => s.count));
+
+    result.stats.forEach(s => {
+        const t = TYPES.find(t => t.id === s.id);
+        if (!t) return;
+
+        const isTop = s.id === result.top;
+        const relativeWidth = maxCount > 0 ? (s.count / maxCount) * 100 : 0;
+
+        const item = document.createElement('div');
+        item.className = 'stat-item';
+        item.innerHTML = `
+            <span class="stat-name">${t.name}</span>
+            <div class="stat-bar"><div class="stat-fill${isTop ? ' top' : ''}" style="width:${relativeWidth}%;"></div></div>
+            <span class="stat-pct">${s.pct}%</span>
+        `;
+        statsEl.appendChild(item);
+    });
+
+    document.getElementById('panel').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

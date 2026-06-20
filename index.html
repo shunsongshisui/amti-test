@@ -19,6 +19,9 @@
             --purple: #b89ce0;
             --purple-dim: #7a64a0;
             --purple-glow: rgba(142,110,204,0.15);
+            --teal: #2dd4bf;
+            --teal-dim: #1a8a7a;
+            --teal-glow: rgba(45,212,191,0.15);
         }
 
         body {
@@ -106,6 +109,15 @@
         .card-purple .card-sub { font-size: 13px; color: var(--purple-dim); letter-spacing: 2px; margin-bottom: 12px; }
         .card-purple .card-desc { font-size: 13px; color: var(--cream); opacity: 0.6; line-height: 1.7; }
 
+        .card-teal { border-color: rgba(45,212,191,0.2); }
+        .card-teal::after { background: linear-gradient(90deg, transparent, var(--teal), transparent); }
+        .card-teal:hover { border-color: rgba(45,212,191,0.4); box-shadow: 0 8px 30px rgba(45,212,191,0.08); }
+        .card-teal:hover::after { opacity: 1; }
+        .card-teal .card-icon { font-size: 32px; margin-bottom: 12px; }
+        .card-teal .card-title { font-size: 22px; font-weight: 700; color: var(--teal); letter-spacing: 3px; margin-bottom: 8px; }
+        .card-teal .card-sub { font-size: 13px; color: var(--teal-dim); letter-spacing: 2px; margin-bottom: 12px; }
+        .card-teal .card-desc { font-size: 13px; color: var(--cream); opacity: 0.6; line-height: 1.7; }
+
         .card-badge {
             display: inline-block; font-size: 10px; letter-spacing: 2px;
             padding: 2px 10px; border-radius: 10px; margin-bottom: 10px;
@@ -168,6 +180,20 @@
                     所有选项完全一样——<br>
                     你选的不是答案，是时机。<br>
                     让命运替你决定你是谁。
+                </div>
+            </a>
+        </div>
+
+        <div class="card-row">
+            <a class="card card-teal" href="lom-test.html" style="flex:0 0 100%;">
+                <div class="card-badge" style="border-color:var(--teal-dim);color:var(--teal-dim);">▎谱系版</div>
+                <div class="card-icon">🃏</div>
+                <div class="card-title" style="color:var(--teal);">诡秘之主 · 人格谱系</div>
+                <div class="card-sub" style="color:var(--teal-dim);">12 道抉择 · 你在诡秘世界中的倒影</div>
+                <div class="card-desc">
+                    十二种人格，十二个代号，<br>
+                    对应十二位诡秘世界的关键人物——<br>
+                    你的选择会唤醒哪一条途径？
                 </div>
             </a>
         </div>

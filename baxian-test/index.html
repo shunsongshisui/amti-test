@@ -1517,14 +1517,12 @@ function restartQuiz() {
 }
 
 // ===================================================================
-//  意见箱 —— 通过 AJAX 直接发送（无需跳转邮件客户端）
+//  意见箱 —— 通过 AJAX 直接发送到邮箱（无需跳转）
 // ===================================================================
-// ⚡ 使用 Formspree 免费服务：https://formspree.io
-//  1. 注册免费账号 → Create New Form → 得到 Form Endpoint
-//  2. 把下面的 URL 替换成你的 Formspree 地址
-//  3. 搞定！用户填表点发送就直接 POST 到你邮箱了
+// 使用 FormSubmit 免费服务：https://formsubmit.co
+// 无需注册，直接 POST 到 formsubmit.co/你的邮箱 即可
 // ===================================================================
-const FEEDBACK_ENDPOINT = 'https://formspree.io/f/你的表单ID'; // ← 换成你的 Formspree 地址
+const FEEDBACK_ENDPOINT = 'https://formsubmit.co/ajax/2538894931@qq.com';
 
 function sendFeedback() {
   const text = document.getElementById('feedbackText').value.trim();
@@ -1547,9 +1545,9 @@ function sendFeedback() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
-      message: text,
-      replyTo: email || '未留邮箱',
-      _subject: '《八仙！》人格测试 · 意见反馈'
+      message: text + (email ? '\n\n来自：' + email : ''),
+      _subject: '《八仙！》人格测试 · 意见反馈',
+      _captcha: false
     })
   })
   .then(res => {

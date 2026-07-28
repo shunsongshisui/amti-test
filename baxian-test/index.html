@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>《八仙！》人格测试 · 全面版</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@300;400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: #0f0b18;
+    color: #e8e0d0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 烟火气背景 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(218,140,92,0.04), transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(246,211,101,0.03), transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(138,76,90,0.02), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 30px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== 头部 ===== */
+  .hero {
+    text-align: center;
+    padding: 30px 0 24px;
+  }
+  .hero .movie-badge {
+    display: inline-block;
+    background: rgba(218,140,92,0.12);
+    border: 1px solid rgba(218,140,92,0.2);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.6em;
+    color: #da8c5c;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-family: 'ZCOOL KuaiLe', cursive;
+    font-size: 3em;
+    background: linear-gradient(135deg, #f6d365, #da8c5c, #e8b87a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 6px;
+    line-height: 1.2;
+  }
+  .hero h1 .exclaim { -webkit-text-fill-color: #da8c5c; }
+  .hero p {
+    color: #a09080;
+    margin-top: 6px;
+    font-size: 0.9em;
+    letter-spacing: 2px;
+  }
+  .hero .subtitle {
+    display: inline-block;
+    background: rgba(255,215,150,0.06);
+    border: 1px solid rgba(255,215,150,0.1);
+    border-radius: 20px;
+    padding: 3px 16px;
+    font-size: 0.7em;
+    color: #c0a890;
+    margin-top: 6px;
+  }
+
+  /* ===== 进度 ===== */
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: #2a2a3a;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #da8c5c, #f6d365);
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .progress-text {
+    font-size: 0.78em;
+    color: #a09080;
+    min-width: 45px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== 题目卡片 ===== */
+  .question-card {
+    background: linear-gradient(160deg, rgba(28,22,38,0.96), rgba(18,16,32,0.98));
+    border: 1px solid rgba(255,215,150,0.08);
+    border-radius: 18px;
+    padding: 36px 32px;
+    display: none;
+  }
+  .question-card.active { display: block; animation: fadeIn 0.45s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-size: 0.7em;
+    color: #da8c5c;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .q-tag {
+    display: inline-block;
+    font-size: 0.6em;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: rgba(246,211,101,0.06);
+    border: 1px solid rgba(246,211,101,0.1);
+    color: #c8b898;
+    margin-bottom: 10px;
+  }
+  .q-title {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #f0e8d8;
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    background: rgba(255,215,150,0.04);
+    border: 1px solid rgba(255,215,150,0.1);
+    border-radius: 12px;
+    color: #d0c8b8;
+    font-size: 0.93em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  .option-btn:hover {
+    background: rgba(255,215,150,0.1);
+    border-color: rgba(246,211,101,0.3);
+    transform: translateX(4px);
+    color: #f0e8d8;
+  }
+  .option-btn:active { transform: translateX(2px) scale(0.99); }
+  .option-btn.selected {
+    background: rgba(246,211,101,0.12);
+    border-color: rgba(246,211,101,0.35);
+    color: #f6d365;
+  }
+
+  /* ===== 导航按钮 ===== */
+  .q-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    gap: 10px;
+  }
+  .back-btn {
+    padding: 10px 20px;
+    background: rgba(255,215,150,0.05);
+    border: 1px solid rgba(255,215,150,0.12);
+    border-radius: 10px;
+    color: #a09080;
+    font-size: 0.82em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+  }
+  .back-btn:hover {
+    background: rgba(255,215,150,0.1);
+    border-color: rgba(255,215,150,0.25);
+    color: #d0c0a0;
+  }
+  .back-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .q-counter {
+    font-size: 0.72em;
+    color: #605040;
+    letter-spacing: 1px;
+  }
+
+  /* ===== 星座 & MBTI 徽章 ===== */
+  .profile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 4px;
+  }
+  .profile-badges span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-size: 0.75em;
+  }
+  .badge-zodiac {
+    background: rgba(160,128,192,0.1);
+    border: 1px solid rgba(160,128,192,0.15);
+    color: #c0a8d0;
+  }
+  .badge-mbti {
+    background: rgba(246,211,101,0.07);
+    border: 1px solid rgba(246,211,101,0.12);
+    color: #e8c87a;
+  }
+
+  /* ===== 意见箱 ===== */
+  .feedback-section {
+    margin-top: 44px;
+    padding: 28px 24px;
+    background: rgba(255,215,150,0.02);
+    border: 1px solid rgba(255,215,150,0.06);
+    border-radius: 16px;
+    text-align: center;
+    display: none;
+  }
+  .feedback-section.active { display: block; }
+  .feedback-section h3 {
+    font-size: 0.85em;
+    color: #a09080;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+  .feedback-section p {
+    font-size: 0.75em;
+    color: #706050;
+    margin-bottom: 14px;
+  }
+  .feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .feedback-form textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,215,150,0.1);
+    border-radius: 10px;
+    color: #d0c8b8;
+    font-size: 0.85em;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .feedback-form textarea:focus {
+    border-color: rgba(246,211,101,0.25);
+  }
+  .feedback-form textarea::placeholder {
+    color: #504030;
+  }
+  .feedback-submit {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #7a5aaa, #da8c5c);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .feedback-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(122,90,170,0.15);
+  }
+  .feedback-submit:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .feedback-status {
+    font-size: 0.78em;
+    color: #6a8a6a;
+    margin-top: 8px;
+    min-height: 1.5em;
+  }
+
+  /* ===== 天命题 ===== */
+  .fate-card {
+    background: linear-gradient(160deg, rgba(38,18,28,0.96), rgba(18,16,32,0.98));
+    border: 1px solid rgba(246,211,101,0.12);
+    border-radius: 18px;
+    padding: 44px 32px;
+    text-align: center;
+    display: none;
+  }
+  .fate-card.active { display: block; animation: fateIn 0.7s ease; }
+
+  @keyframes fateIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .fate-icon { font-size: 2.8em; margin-bottom: 12px; }
+  .fate-label {
+    font-size: 0.65em;
+    color: #da8c5c;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+  }
+  .fate-prompt {
+    font-family: 'ZCOOL KuaiLe', cursive;
+    font-size: 1.5em;
+    color: #f0e0c0;
+    line-height: 1.6;
+    margin-bottom: 28px;
+    padding: 0 8px;
+  }
+  .fate-btn {
+    display: inline-block;
+    padding: 14px 44px;
+    background: linear-gradient(135deg, #f6d365, #da8c5c);
+    border: none;
+    border-radius: 50px;
+    color: #1a1a2a;
+    font-size: 1.05em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    letter-spacing: 3px;
+  }
+  .fate-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(246,211,101,0.2);
+  }
+  .fate-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .fate-reveal {
+    margin-top: 22px;
+    font-size: 1.4em;
+    color: #f6d365;
+    font-family: 'ZCOOL KuaiLe', cursive;
+    min-height: 2em;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .fate-reveal.show { opacity: 1; }
+
+  /* ===== 结果页 ===== */
+  .result-card {
+    display: none;
+    animation: fadeIn 0.7s ease;
+  }
+  .result-card.active { display: block; }
+
+  .result-header {
+    text-align: center;
+    padding: 20px 0 10px;
+  }
+  .result-header .label {
+    font-size: 0.75em;
+    color: #a09080;
+    letter-spacing: 4px;
+  }
+  .result-header .name {
+    font-family: 'ZCOOL KuaiLe', cursive;
+    font-size: 2.8em;
+    background: linear-gradient(135deg, #f6d365, #da8c5c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 2px 0;
+  }
+  .result-header .title-line {
+    color: #c0a890;
+    font-size: 0.9em;
+  }
+
+  .art-container {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0 24px;
+  }
+  .art-container svg {
+    max-width: 200px;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(246,211,101,0.04));
+  }
+
+  .result-body {
+    background: rgba(255,215,150,0.03);
+    border: 1px solid rgba(255,215,150,0.07);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 8px 0 16px;
+  }
+  .result-body h3 {
+    color: #f6d365;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .result-body p {
+    color: #c8c0b0;
+    line-height: 1.85;
+    font-size: 0.92em;
+  }
+
+  .result-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 14px 0 4px;
+  }
+  .result-tags span {
+    display: inline-block;
+    padding: 3px 12px;
+    background: rgba(246,211,101,0.07);
+    border: 1px solid rgba(246,211,101,0.12);
+    border-radius: 16px;
+    font-size: 0.72em;
+    color: #e8c87a;
+  }
+
+  /* ===== 分数总览 ===== */
+  .score-section {
+    margin: 16px 0;
+    padding: 20px;
+    background: rgba(255,215,150,0.02);
+    border: 1px solid rgba(255,215,150,0.05);
+    border-radius: 14px;
+  }
+  .score-section h3 {
+    color: #a09080;
+    font-size: 0.75em;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .score-bars { display: flex; flex-direction: column; gap: 6px; }
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score-row .sname {
+    width: 48px;
+    font-size: 0.72em;
+    color: #b0a090;
+    text-align: right;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .score-row .sbar-wrap {
+    flex: 1;
+    height: 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 7px;
+    overflow: hidden;
+    position: relative;
+  }
+  .score-row .sbar {
+    height: 100%;
+    border-radius: 7px;
+    transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    min-width: 2px;
+  }
+  .score-row .sval {
+    font-size: 0.68em;
+    color: #807060;
+    width: 34px;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-row .sbar.pos { background: linear-gradient(90deg, #da8c5c, #f6d365); }
+  .score-row .sbar.neg { background: linear-gradient(90deg, #5c3a4a, #8c4a5a); }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .btn-primary, .btn-secondary, .btn-fate {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9em;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s ease;
+    flex: 1;
+    text-align: center;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #f6d365, #da8c5c);
+    color: #1a1a2a;
+    font-weight: 700;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(246,211,101,0.18); }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(255,215,150,0.18);
+    color: #c0a890;
+  }
+  .btn-secondary:hover { background: rgba(255,215,150,0.06); border-color: rgba(255,215,150,0.28); }
+  .btn-fate {
+    background: linear-gradient(135deg, #4a2a3a, #6a3a4a);
+    border: 1px solid rgba(218,140,92,0.15);
+    color: #d8b8b8;
+  }
+  .btn-fate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(138,76,90,0.15); }
+
+  /* ===== 角色图鉴 ===== */
+  .all-characters {
+    margin-top: 44px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,215,150,0.06);
+    display: none;
+  }
+  .all-characters.active { display: block; }
+  .all-characters > h3 {
+    text-align: center;
+    color: #a09080;
+    font-size: 0.8em;
+    letter-spacing: 4px;
+    margin-bottom: 18px;
+  }
+  .char-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .char-mini {
+    text-align: center;
+    padding: 10px 4px;
+    border-radius: 10px;
+    background: rgba(255,215,150,0.02);
+    border: 1px solid rgba(255,215,150,0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .char-mini:hover { background: rgba(255,215,150,0.07); border-color: rgba(255,215,150,0.12); }
+  .char-mini svg { width: 30px; height: 30px; display: block; margin: 0 auto 3px; }
+  .char-mini .cname { font-size: 0.6em; color: #b0a090; }
+  .char-mini .cscore { font-size: 0.55em; color: #706050; }
+
+  .footer-links {
+    text-align: center;
+    margin-top: 36px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,215,150,0.05);
+  }
+  .footer-links a {
+    color: #706050;
+    text-decoration: none;
+    font-size: 0.75em;
+    margin: 0 10px;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: #b0a090; }
+
+  /* ===== 电影信息角标 ===== */
+  .movie-credit {
+    text-align: center;
+    margin-top: 12px;
+    padding: 10px;
+    font-size: 0.6em;
+    color: #504030;
+    letter-spacing: 1px;
+  }
+  .movie-credit a { color: #605040; text-decoration: none; }
+  .movie-credit a:hover { color: #908070; }
+
+  @media (max-width: 560px) {
+    .hero h1 { font-size: 2.2em; }
+    .question-card { padding: 24px 16px; }
+    .q-title { font-size: 1.05em; }
+    .result-header .name { font-size: 2em; }
+    .char-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .btn-group { flex-direction: column; }
+    .art-container svg { max-width: 150px; }
+    .fate-prompt { font-size: 1.2em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="movie-badge">✦ 2026 暑期档 · 国漫黑马 ✦</div>
+    <h1>八 仙 <span class="exclaim">！</span></h1>
+    <p>测一测 · 你是《八仙！》里的哪位？</p>
+    <div class="subtitle">✦ 草台班子人格测验 ✦</div>
+  </div>
+
+  <!-- 进度条 -->
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-text" id="progressText">0/0</span>
+  </div>
+
+  <!-- 题目区 -->
+  <div id="quizArea"></div>
+
+  <!-- 天命题区 -->
+  <div id="fateArea"></div>
+
+  <!-- 结果区 -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="label">✦ 你的草台班子身份 ✦</div>
+      <div class="name" id="resultName">—</div>
+      <div class="title-line" id="resultTitle">—</div>
+    </div>
+    <div class="art-container" id="resultArt"></div>
+
+    <div class="result-body">
+      <h3>▎ 角 色 档 案</h3>
+      <p id="resultDesc"></p>
+      <div class="result-tags" id="resultTags"></div>
+      <div class="profile-badges" id="profileBadges"></div>
+    </div>
+
+    <div class="score-section">
+      <h3>— 仙 班 排 名 —</h3>
+      <div class="score-bars" id="scoreBars"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-primary" onclick="showAllCharacters()">✦ 全部角色</button>
+      <button class="btn-secondary" onclick="restartQuiz()">↻ 重新测试</button>
+      <button class="btn-fate" onclick="location.href='fate.html'">☯ 纯天命版</button>
+    </div>
+  </div>
+
+  <!-- 全部角色图鉴 -->
+  <div class="all-characters" id="allCharacters">
+    <h3>— 《八仙！》角 色 全 图 鉴 —</h3>
+    <div class="char-grid" id="charGrid"></div>
+  </div>
+
+  <!-- ===== 意见箱 ===== -->
+  <div class="feedback-section" id="feedbackSection">
+    <h3>💌 意 见 箱</h3>
+    <p>对测试有什么建议或想法？欢迎告诉我</p>
+    <div class="feedback-form">
+      <textarea id="feedbackText" placeholder="写点什么吧……（你的意见会直接发到我的邮箱）" rows="3"></textarea>
+      <div style="display:flex;gap:10px;">
+        <input id="feedbackEmail" type="email" placeholder="你的邮箱（选填，方便我回复）" style="flex:1;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,150,0.1);border-radius:10px;color:#d0c8b8;font-size:0.82em;font-family:inherit;outline:none;">
+        <button class="feedback-submit" onclick="sendFeedback()">📨 发送</button>
+      </div>
+      <div class="feedback-status" id="feedbackStatus"></div>
+    </div>
+  </div>
+
+  <div class="footer-links">
+    <a href="fate.html">☯ 纯天命版</a>
+    <a href="#" onclick="restartQuiz()">↻ 重新测试</a>
+  </div>
+
+  <div class="movie-credit">
+    based on <a href="https://www.douban.com" target="_blank">《八仙！》</a> (2026)
+  </div>
+</div>
+
+<script>
+// ===================================================================
+//  《八仙！》(2026) — 角色数据
+// ===================================================================
+const CHARACTERS = [
+  { id: 'zhongliquan', name: '钟离权', title: '「坠落的理想主义者」', icon: '🍶',
+    desc: '你表面痞里痞气、玩世不恭，活脱脱一个市井老油条。但你心里比谁都清楚——这世界不值得你掏出真心，所以你先把它藏起来了。你曾经也有过理想，只是被生活磨成了沉默。但你骨子里那份仗义从没丢过——真到了节骨眼上，你是那个第一个冲出去的人。你的嘴有多贫，心就有多热。',
+    tags: ['痞帅洒脱', '市井智慧', '外痞内正', '坠落理想'], zodiac: '射手座', zodiacIcon: '♐', mbti: 'ENTP', mbtiLabel: '辩论家' },
+  { id: 'lyudongbin', name: '吕洞宾', title: '「冷面谋士 · 怕狗剑仙」', icon: '⚔️',
+    desc: '你看起来冷冰冰的，说话一针见血，好像什么都不在乎。但实际上你是那个默默把一切都安排好的人。你不喜欢表达感情，但你做的每一件事都在说"我在乎"。你唯一的软肋？你自己都没想到会是一只狗。你的清冷是保护色，热血才是底色。你信奉"不问得失，只认对错"。',
+    tags: ['清冷谋士', '嘴贫心热', '反差萌', '怕狗'], zodiac: '天蝎座', zodiacIcon: '♏', mbti: 'INTJ', mbtiLabel: '建筑师' },
+  { id: 'hexiangu', name: '何仙姑', title: '「战力天花板 · 毒舌女侠」', icon: '🪷',
+    desc: '你是那种"能动手绝不吵吵"的人。战斗力爆表，说话也一针见血——毒舌起来连自己人都怕。但你其实心肠比谁都软，嘴上说着"麻烦死了"，手上已经把事全干完了。你讨厌拖泥带水，也讨厌虚伪客套。你看起来冷面飒爽，但熟悉你的人都知道——你就是个嘴硬心软的死傲娇。',
+    tags: ['战力天花板', '毒舌心软', '英姿飒爽', '嘴硬心软'], zodiac: '白羊座', zodiacIcon: '♈', mbti: 'ESTP', mbtiLabel: '企业家' },
+  { id: 'tieguaili', name: '铁拐李', title: '「川普笑匠 · 通透老江湖」', icon: '🍜',
+    desc: '你是团队里的气氛组，一张嘴就是段子，操着一口川普能把所有人都逗乐。你以为你只是个插科打诨的？错了——你是最通透的那一个。你经历过大起大落，早就看透了世态炎凉，所以选择用笑声面对一切。你的乐观不是天真，是千帆过尽后的选择。没什么是一顿火锅解决不了的，如果有，就加份脑花。',
+    tags: ['川普笑匠', '通透世故', '乐观豁达', '烟火气'], zodiac: '双鱼座', zodiacIcon: '♓', mbti: 'ESFP', mbtiLabel: '表演者' },
+  { id: 'caoguojiu', name: '曹国舅', title: '「贵气憨憨 · 仙界打工人」', icon: '📿',
+    desc: '你是那种看起来最想"躺平"的人——能摸鱼绝不加班，能坐着绝不站着。但真出了事，你是那个第一个站起来扛的。你出身好但从不摆架子，表面精致利己，实际憨厚可靠。你身上有种"被迫营业"的疲惫感，却也是团队里最让人安心的后盾。你不是不努力，你只是不想让别人看出来你努力了。',
+    tags: ['贵气憨憨', '表面躺平', '被迫营业', '可靠后盾'], zodiac: '金牛座', zodiacIcon: '♉', mbti: 'ISFJ', mbtiLabel: '守卫者' },
+  { id: 'lancaihe', name: '蓝采和', title: '「纯真少年 · 团宠担当」', icon: '🏮',
+    desc: '你是全队最小的那个，也是所有人想要保护的那个。你天真烂漫、古灵精怪，看什么都觉得新鲜。你的世界很简单——谁对你好，你就对谁更好。你以为你什么都不懂，但有时候你最纯粹的话，反而能戳破所有人不敢面对的现实。你的存在本身就是一束光，提醒着大家：这世界还没那么糟。',
+    tags: ['纯真少年', '团宠本宠', '古灵精怪', '温暖之光'], zodiac: '双子座', zodiacIcon: '♊', mbti: 'ENFP', mbtiLabel: '活动家' },
+  { id: 'hanxiangzi', name: '韩湘子', title: '「技术宅 · 话痨乐师」', icon: '🎵',
+    desc: '你是个不折不扣的技术宅，痴迷于各种乐器和术法机关。你说话飞快、思维跳跃，经常自言自语到忘记旁边还有人。你的世界有一套自己的逻辑，外人看着复杂，你觉得理所应当。你不擅长社交，但你擅长用作品说话。只要给你一把唢呐或一个机关，你能还你一个奇迹。话痨只是你的副产物，才华才是你的本体。',
+    tags: ['技术宅', '话痨天才', '痴迷术法', '不擅社交'], zodiac: '处女座', zodiacIcon: '♍', mbti: 'INTP', mbtiLabel: '逻辑学家' },
+  { id: 'zhangguolao', name: '张果老', title: '「装晕老江湖 · 佛系智者」', icon: '🐴',
+    desc: '你是"大隐隐于市"的活教材。表面上你倚老卖老、碰瓷装晕，实际上你心里跟明镜似的。你经历的事情比这群年轻人加起来都多，你只是不想掺和——因为你太清楚"掺和"的代价了。但你最终还是会被这群傻子打动，因为你嘴上说着"不管了不管了"，心里比谁都在乎。你的佛系不是无力，是选择。',
+    tags: ['老江湖', '佛系智者', '装疯卖傻', '大智若愚'], zodiac: '摩羯座', zodiacIcon: '♑', mbti: 'ISTP', mbtiLabel: '鉴赏家' },
+  { id: 'yangjian', name: '杨戬', title: '「悲情战神 · 三眼反差」', icon: '👁️',
+    desc: '你强大、孤傲、不怒自威，所有人看到你都绕着走。但你心里藏着一个最温柔的执念——你愿意与世界为敌，只为守护那个你最在乎的人。你的冷酷是对外的铠甲，你的柔软只留给极少数人。你尊重对手、爱护同伴（哪怕是你的狗），你做事有底线有原则。你不是天生的反派，你只是选择了最难的那条路。',
+    tags: ['悲情反派', '强大温柔', '极致反差', '重情重义'], zodiac: '狮子座', zodiacIcon: '♌', mbti: 'INFJ', mbtiLabel: '提倡者' },
+  { id: 'sunwukong', name: '孙悟空', title: '「彩蛋之王 · 自由心猿」', icon: '🐵',
+    desc: '你是天生的主角命——哪怕只是客串出场，也能成为全场最亮的崽。你自由不羁、本事通天，但没有被力量冲昏头脑。你看似吊儿郎当，其实心里门儿清——什么时候该出手、什么时候该隐身，你比谁都明白。你给的不是一根毫毛，而是一个"你可以的"的信任。你的存在本身就是一种力量：别慌，大圣来了。',
+    tags: ['自由不羁', '主角气场', '点睛救场', '深藏不露'], zodiac: '水瓶座', zodiacIcon: '♒', mbti: 'ENTP', mbtiLabel: '辩论家' }
+];
+
+// ===================================================================
+//  题目数据 — 每题选项含正负分
+// ===================================================================
+const QUESTIONS = [
+  { tag: '', q: '朋友约你周末去搞事情，你第一反应是？',
+    opts: [
+      { text: '"走啊！搞起搞起！" —— 先去了再说', map: { zhongliquan: +15, lancaihe: +12, sunwukong: +10, tieguaili: +8, lyudongbin: +2, zhangguolao: -5, yangjian: -8 } },
+      { text: '"我先看看是什么事……" —— 评估一下再决定', map: { lyudongbin: +15, yangjian: +12, caoguojiu: +10, hexiangu: +8, hanxiangzi: +5, tieguaili: -5, lancaihe: -8 } },
+      { text: '"别找我，我只想躺着" —— 躺平拒绝', map: { zhangguolao: +18, caoguojiu: +12, tieguaili: +8, hanxiangzi: +5, hexiangu: +3, lyudongbin: -5, sunwukong: -8 } },
+      { text: '"行啊，去哪儿？我来安排路线"', map: { hexiangu: +14, lyudongbin: +12, zhongliquan: +8, sunwukong: +5, hanxiangzi: +5, zhangguolao: -8, caoguojiu: -3 } }
+    ]},
+  { tag: '', q: '你最受不了什么样的队友？',
+    opts: [
+      { text: '光说不练的嘴炮王者', map: { hexiangu: +18, tieguaili: +12, hanxiangzi: +10, zhongliquan: +8, yangjian: +5, caoguojiu: -5, lyudongbin: -3 } },
+      { text: '死脑筋、一点不懂变通', map: { zhongliquan: +16, sunwukong: +14, zhangguolao: +10, lancaihe: +8, lyudongbin: +3, caoguojiu: -5, yangjian: -8 } },
+      { text: '负能量爆棚、一直在抱怨', map: { lancaihe: +18, tieguaili: +12, zhongliquan: +10, lyudongbin: +5, hanxiangzi: +5, yangjian: -5, zhangguolao: -5 } },
+      { text: '不靠谱、答应的事做不到', map: { lyudongbin: +16, yangjian: +12, caoguojiu: +10, hexiangu: +8, zhangguolao: +3, sunwukong: -5, lancaihe: -8 } }
+    ]},
+  { tag: '', q: '以下哪句话最像你会说的？',
+    opts: [
+      { text: '"这事儿你别管了，我来处理"', map: { yangjian: +16, hexiangu: +14, lyudongbin: +10, caoguojiu: +5, zhongliquan: +5, lancaihe: -5, zhangguolao: -8 } },
+      { text: '"哈哈哈哈嗝——不行了笑死我了"', map: { tieguaili: +18, zhongliquan: +14, lancaihe: +10, sunwukong: +8, zhangguolao: +5, yangjian: -10, lyudongbin: -5 } },
+      { text: '"嗯"（然后默默把所有事做完了）', map: { lyudongbin: +16, hexiangu: +12, yangjian: +10, caoguojiu: +8, hanxiangzi: +5, tieguaili: -5, zhongliquan: -8 } },
+      { text: '"啊？你刚才说啥？我没听见……"', map: { zhangguolao: +15, lancaihe: +12, hanxiangzi: +10, tieguaili: +8, caoguojiu: +5, yangjian: -8, hexiangu: -5 } }
+    ]},
+  { tag: '', q: '你面对困难时的第一反应是？',
+    opts: [
+      { text: '莽上去——先干了再说', map: { hexiangu: +18, sunwukong: +15, zhongliquan: +10, tieguaili: +8, lancaihe: +5, lyudongbin: -8, zhangguolao: -10 } },
+      { text: '先退一步，观察情况再找破绽', map: { lyudongbin: +18, yangjian: +14, zhangguolao: +10, caoguojiu: +8, hanxiangzi: +5, sunwukong: -8, hexiangu: -5 } },
+      { text: '先找人帮忙——不能我一个人扛', map: { zhongliquan: +14, lancaihe: +14, caoguojiu: +10, tieguaili: +8, lyudongbin: +3, yangjian: -8, hexiangu: -5 } },
+      { text: '先坐下来吃顿好的，吃饱了再说', map: { tieguaili: +18, zhangguolao: +14, zhongliquan: +10, caoguojiu: +5, lancaihe: +5, yangjian: -8, lyudongbin: -5 } }
+    ]},
+  { tag: '', q: '在团队里你一般扮演什么角色？',
+    opts: [
+      { text: '出主意的军师', map: { lyudongbin: +18, zhangguolao: +12, yangjian: +10, hanxiangzi: +8, caoguojiu: +5, tieguaili: -5, lancaihe: -8 } },
+      { text: '冲锋的猛将', map: { hexiangu: +20, sunwukong: +15, zhongliquan: +10, tieguaili: +8, yangjian: +5, zhangguolao: -8, caoguojiu: -5 } },
+      { text: '调节气氛的开心果', map: { tieguaili: +18, lancaihe: +15, zhongliquan: +12, sunwukong: +8, lyudongbin: +2, yangjian: -10, hexiangu: -5 } },
+      { text: '默默干活的后勤', map: { caoguojiu: +16, hanxiangzi: +12, lyudongbin: +8, hexiangu: +5, zhangguolao: +5, sunwukong: -8, zhongliquan: -5 } }
+    ]},
+  { tag: '', q: '你觉得自己更像哪种"梗"？',
+    opts: [
+      { text: '"我心态崩了" —— 表面崩溃实际稳得一批', map: { caoguojiu: +16, zhangguolao: +12, tieguaili: +10, zhongliquan: +8, lyudongbin: +5, hexiangu: -5, sunwukong: -8 } },
+      { text: '"你没事吧？" —— 自己先嫌弃但第一个冲去帮忙', map: { hexiangu: +18, lyudongbin: +12, zhongliquan: +10, caoguojiu: +8, lancaihe: +5, yangjian: -5, hanxiangzi: -5 } },
+      { text: '"芜湖起飞！" —— 永远在状况外开心', map: { lancaihe: +20, sunwukong: +14, tieguaili: +10, zhongliquan: +8, zhangguolao: +3, yangjian: -10, lyudongbin: -5 } },
+      { text: '"弱小可怜但能吃" —— 自黑一流', map: { tieguaili: +16, zhangguolao: +12, zhongliquan: +10, caoguojiu: +8, hanxiangzi: +5, hexiangu: -5, yangjian: -8 } }
+    ]},
+  { tag: '', q: '如果明天世界末日，你会？',
+    opts: [
+      { text: '去找到最重要的那个人，带TA一起跑', map: { yangjian: +20, zhongliquan: +12, lyudongbin: +10, hexiangu: +8, lancaihe: +5, sunwukong: -5, tieguaili: -3 } },
+      { text: '摆烂——反正都要完蛋了，先吃顿火锅', map: { tieguaili: +18, zhangguolao: +14, zhongliquan: +10, caoguojiu: +8, lancaihe: +5, yangjian: -8, lyudongbin: -5 } },
+      { text: '想办法——世界上一定还有救', map: { lyudongbin: +18, hanxiangzi: +12, sunwukong: +10, hexiangu: +8, caoguojiu: +5, zhangguolao: -8, tieguaili: -5 } },
+      { text: '和朋友们在一起，最后疯一把', map: { lancaihe: +16, zhongliquan: +14, sunwukong: +12, tieguaili: +8, hexiangu: +5, yangjian: -8, lyudongbin: -3 } }
+    ]},
+  { tag: '', q: '你最怕什么？',
+    opts: [
+      { text: '怕狗（或者某种意想不到的小动物）', map: { lyudongbin: +20, hanxiangzi: +10, caoguojiu: +8, lancaihe: +5, zhangguolao: +3, hexiangu: -5, yangjian: -8 } },
+      { text: '怕穷——没钱比死了还难受', map: { caoguojiu: +16, tieguaili: +12, zhongliquan: +10, zhangguolao: +8, hanxiangzi: +5, lancaihe: -5, lyudongbin: -8 } },
+      { text: '怕无聊——生活没意思不如不活', map: { sunwukong: +18, lancaihe: +12, zhongliquan: +10, tieguaili: +8, hanxiangzi: +5, zhangguolao: -8, caoguojiu: -5 } },
+      { text: '怕在乎的人受伤害——自己出事无所谓', map: { yangjian: +18, hexiangu: +14, lyudongbin: +10, zhongliquan: +8, lancaihe: +5, tieguaili: -3, sunwukong: -5 } }
+    ]},
+  { tag: '', q: '别人通常用哪三个字形容你？',
+    opts: [
+      { text: '"靠得住"', map: { lyudongbin: +16, yangjian: +14, caoguojiu: +12, hexiangu: +10, zhongliquan: +5, lancaihe: -8, tieguaili: -5 } },
+      { text: '"笑死我"', map: { tieguaili: +20, zhongliquan: +14, lancaihe: +10, sunwukong: +8, zhangguolao: +5, yangjian: -10, lyudongbin: -5 } },
+      { text: '"不好惹"', map: { hexiangu: +18, yangjian: +14, sunwukong: +10, lyudongbin: +5, zhongliquan: +5, lancaihe: -8, caoguojiu: -5 } },
+      { text: '"好可爱"', map: { lancaihe: +20, caoguojiu: +10, tieguaili: +8, zhangguolao: +5, hanxiangzi: +5, yangjian: -10, hexiangu: -5 } }
+    ]},
+  { tag: '', q: '你赞成以下哪种说法？',
+    opts: [
+      { text: '"命是天定的，路是自己选的"', map: { sunwukong: +18, hexiangu: +12, lyudongbin: +10, zhongliquan: +8, lancaihe: +5, zhangguolao: -8, caoguojiu: -5 } },
+      { text: '"有时候，聪明不如糊涂"', map: { zhangguolao: +18, caoguojiu: +12, tieguaili: +10, zhongliquan: +8, hanxiangzi: +5, lyudongbin: -5, yangjian: -8 } },
+      { text: '"对错不重要，结果才重要"', map: { yangjian: +16, lyudongbin: +12, caoguojiu: +8, hexiangu: +5, zhongliquan: +5, lancaihe: -8, sunwukong: -5 } },
+      { text: '"开心最重要，其他都是浮云"', map: { tieguaili: +18, lancaihe: +14, zhongliquan: +12, zhangguolao: +8, sunwukong: +5, yangjian: -10, lyudongbin: -5 } }
+    ]},
+  { tag: '', q: '你更喜欢哪种类型的电影/故事？',
+    opts: [
+      { text: '搞笑喜剧——生活够苦了，看点开心的', map: { tieguaili: +18, zhongliquan: +14, lancaihe: +10, zhangguolao: +8, sunwukong: +5, yangjian: -8, lyudongbin: -5 } },
+      { text: '智斗博弈——看聪明人过招太过瘾了', map: { lyudongbin: +18, yangjian: +14, hanxiangzi: +10, caoguojiu: +8, zhangguolao: +5, tieguaili: -5, lancaihe: -8 } },
+      { text: '热血战斗——燃就完事了', map: { hexiangu: +18, sunwukong: +16, zhongliquan: +10, yangjian: +8, lancaihe: +3, zhangguolao: -8, caoguojiu: -5 } },
+      { text: '温情治愈——哭一场也挺好的', map: { lancaihe: +14, caoguojiu: +12, hexiangu: +10, lyudongbin: +5, hexiangu: +5, sunwukong: -8, yangjian: -5 } }
+    ]},
+  { tag: '', q: '如果有人冤枉了你，你会？',
+    opts: [
+      { text: '当场怼回去——凭什么受这委屈？', map: { hexiangu: +18, zhongliquan: +12, sunwukong: +10, tieguaili: +8, lyudongbin: +5, zhangguolao: -8, caoguojiu: -5 } },
+      { text: '懒得解释——懂我的自然懂', map: { lyudongbin: +18, yangjian: +14, zhangguolao: +10, hanxiangzi: +8, caoguojiu: +5, tieguaili: -5, lancaihe: -8 } },
+      { text: '用行动证明——做出来比说出来有用', map: { yangjian: +14, caoguojiu: +12, lyudongbin: +10, hexiangu: +8, hanxiangzi: +5, zhongliquan: -8, tieguaili: -5 } },
+      { text: '委屈巴巴但不说——等别人来发现', map: { lancaihe: +16, caoguojiu: +10, zhangguolao: +8, hanxiangzi: +8, tieguaili: +5, hexiangu: -8, yangjian: -5 } }
+    ]},
+  { tag: '', q: '你理想的"退休生活"是什么样的？',
+    opts: [
+      { text: '找个山清水秀的地方隐居，谁也别找我', map: { zhangguolao: +18, lyudongbin: +12, hanxiangzi: +10, caoguojiu: +8, yangjian: +5, tieguaili: -5, lancaihe: -8 } },
+      { text: '开个小酒馆，听天南地北的人讲故事', map: { zhongliquan: +18, tieguaili: +12, zhangguolao: +10, lyudongbin: +8, lancaihe: +5, yangjian: -8, hanxiangzi: -5 } },
+      { text: '带着在意的人环游世界', map: { sunwukong: +16, lancaihe: +12, hexiangu: +10, zhongliquan: +8, lyudongbin: +5, caoguojiu: -5, zhangguolao: -8 } },
+      { text: '继续工作——不干活我浑身难受', map: { caoguojiu: +14, hanxiangzi: +12, lyudongbin: +10, hexiangu: +8, yangjian: +5, zhangguolao: -10, tieguaili: -5 } }
+    ]},
+  { tag: '', q: '压力爆棚的时候，你会？',
+    opts: [
+      { text: '一个人躲起来，不想让任何人看到', map: { yangjian: +16, lyudongbin: +12, hanxiangzi: +10, hexiangu: +8, caoguojiu: +5, tieguaili: -5, zhongliquan: -8 } },
+      { text: '找朋友出来喝酒吐槽', map: { zhongliquan: +18, tieguaili: +12, lancaihe: +10, sunwukong: +8, lyudongbin: +3, yangjian: -10, zhangguolao: -5 } },
+      { text: '用工作/爱好麻痹自己', map: { lyudongbin: +14, hanxiangzi: +14, caoguojiu: +10, hexiangu: +8, yangjian: +5, lancaihe: -8, zhongliquan: -5 } },
+      { text: '大吃一顿——没有什么是一顿火锅解决不了的', map: { tieguaili: +20, zhangguolao: +12, zhongliquan: +10, lancaihe: +8, caoguojiu: +5, yangjian: -10, lyudongbin: -5 } }
+    ]},
+  { tag: '', q: '如果给你一个超能力，你选？',
+    opts: [
+      { text: '七十二变——想变什么变什么', map: { sunwukong: +20, zhongliquan: +10, lancaihe: +10, tieguaili: +8, lyudongbin: +3, caoguojiu: -5, yangjian: -8 } },
+      { text: '开天眼——看穿一切谎言和真相', map: { yangjian: +18, lyudongbin: +12, zhangguolao: +10, hexiangu: +8, hanxiangzi: +5, tieguaili: -5, lancaihe: -8 } },
+      { text: '人均"闭嘴"——让聒噪的世界安静三秒', map: { hexiangu: +16, lyudongbin: +12, zhangguolao: +10, yangjian: +8, caoguojiu: +5, zhongliquan: -8, tieguaili: -5 } },
+      { text: '任意门——想去哪儿就去哪儿', map: { lancaihe: +16, zhongliquan: +12, sunwukong: +10, tieguaili: +8, zhangguolao: +5, yangjian: -8, lyudongbin: -5 } }
+    ]},
+  { tag: '', q: '你出去旅游更看重什么？',
+    opts: [
+      { text: '美食！为了吃可以专门飞一趟', map: { tieguaili: +18, zhongliquan: +14, lancaihe: +10, zhangguolao: +8, caoguojiu: +5, yangjian: -8, lyudongbin: -3 } },
+      { text: '风景——找个好看的地方发发呆', map: { zhangguolao: +16, hanxiangzi: +12, lyudongbin: +10, hexiangu: +5, lancaihe: +3, sunwukong: -5, zhongliquan: -8 } },
+      { text: '冒险——不走寻常路，去没人去过的地方', map: { sunwukong: +18, hexiangu: +14, zhongliquan: +10, lyudongbin: +5, lancaihe: +5, caoguojiu: -8, zhangguolao: -5 } },
+      { text: '人文——逛博物馆、老街、听当地故事', map: { lyudongbin: +14, zhangguolao: +12, hanxiangzi: +10, caoguojiu: +8, hexiangu: +5, tieguaili: -5, lancaihe: -8 } }
+    ]},
+  { tag: '', q: '你遇到一只流浪猫蹭你的脚，你会？',
+    opts: [
+      { text: '蹲下来狂摸——猫猫诶！！！', map: { lancaihe: +18, hexiangu: +12, tieguaili: +10, caoguojiu: +8, zhongliquan: +5, yangjian: -5, lyudongbin: -10 } },
+      { text: '看看有没有项圈，发个朋友圈找主人', map: { lyudongbin: +14, caoguojiu: +12, hexiangu: +10, hanxiangzi: +8, zhangguolao: +5, sunwukong: -5, zhongliquan: -8 } },
+      { text: '假装没看见，快步走开——不能心软', map: { yangjian: +16, lyudongbin: +12, zhangguolao: +8, hanxiangzi: +5, caoguojiu: +3, lancaihe: -10, tieguaili: -5 } },
+      { text: '兜里正好有根火腿肠，蹲下来喂它', map: { tieguaili: +16, zhongliquan: +12, zhangguolao: +10, lancaihe: +8, hexiangu: +5, yangjian: -8, lyudongbin: -3 } }
+    ]},
+  { tag: '', q: '你在火锅店里必点的一道菜是？',
+    opts: [
+      { text: '毛肚——七上八下，脆就一个字', map: { zhongliquan: +16, tieguaili: +14, hexiangu: +10, lancaihe: +8, lyudongbin: +3, zhangguolao: -5, yangjian: -8 } },
+      { text: '脑花——爱的人爱死，怕的人怕死', map: { tieguaili: +18, zhangguolao: +12, zhongliquan: +10, hanxiangzi: +8, caoguojiu: +5, hexiangu: -5, sunwukong: -8 } },
+      { text: '虾滑——精致、好吃、不麻烦', map: { lyudongbin: +14, caoguojiu: +12, hanxiangzi: +10, hexiangu: +8, lancaihe: +5, zhongliquan: -8, tieguaili: -5 } },
+      { text: '不吃火锅，我吃的是氛围', map: { lancaihe: +14, lyudongbin: +10, hanxiangzi: +8, zhangguolao: +8, caoguojiu: +5, tieguaili: -8, hexiangu: -3 } }
+    ]},
+  { tag: '', q: '你最想养什么宠物？',
+    opts: [
+      { text: '狗——忠诚、热闹、能陪你疯', map: { zhongliquan: +16, sunwukong: +12, tieguaili: +10, lancaihe: +8, hexiangu: +5, lyudongbin: -15, zhangguolao: -5 } },
+      { text: '猫——独立、优雅、不用遛', map: { yangjian: +16, lyudongbin: +12, hanxiangzi: +10, caoguojiu: +8, zhangguolao: +5, tieguaili: -5, zhongliquan: -8 } },
+      { text: '啥也不养——自己都养不活', map: { caoguojiu: +16, zhangguolao: +14, tieguaili: +10, zhongliquan: +8, lyudongbin: +5, hexiangu: -5, lancaihe: -8 } },
+      { text: '养点特别的——比如猴子', map: { sunwukong: +20, lancaihe: +12, zhongliquan: +10, hanxiangzi: +8, tieguaili: +5, yangjian: -8, caoguojiu: -5 } }
+    ]},
+  { tag: '', q: '你的朋友圈/社交媒体风格是？',
+    opts: [
+      { text: '三天可见，基本不发', map: { yangjian: +18, lyudongbin: +14, zhangguolao: +10, hanxiangzi: +8, hexiangu: +5, lancaihe: -8, tieguaili: -5 } },
+      { text: '一天发三条——废话文学大师', map: { tieguaili: +18, zhongliquan: +14, lancaihe: +12, sunwukong: +8, caoguojiu: +3, yangjian: -10, lyudongbin: -5 } },
+      { text: '只发有意思的内容——精挑细选', map: { lyudongbin: +14, hanxiangzi: +12, caoguojiu: +10, hexiangu: +8, zhangguolao: +5, zhongliquan: -8, tieguaili: -5 } },
+      { text: '不玩社交网络——活在现实里', map: { zhangguolao: +16, tieguaili: +10, caoguojiu: +10, hexiangu: +8, yangjian: +5, sunwukong: -8, lancaihe: -5 } }
+    ]},
+  { tag: '', q: '你相信"命中注定"吗？',
+    opts: [
+      { text: '信——有些事就是躲不掉的', map: { zhangguolao: +16, yangjian: +12, hexiangu: +10, caoguojiu: +8, lyudongbin: +5, sunwukong: -8, tieguaili: -5 } },
+      { text: '不信——我命由我不由天', map: { sunwukong: +20, hexiangu: +14, zhongliquan: +10, lyudongbin: +8, lancaihe: +5, zhangguolao: -10, caoguojiu: -5 } },
+      { text: '半信半疑——努力过了才知道是不是命', map: { lyudongbin: +14, caoguojiu: +12, tieguaili: +10, zhongliquan: +8, hanxiangzi: +5, yangjian: -5, sunwukong: -5 } },
+      { text: '没想过——该来的总会来', map: { zhongliquan: +14, tieguaili: +12, lancaihe: +10, zhangguolao: +8, caoguojiu: +5, lyudongbin: -5, hexiangu: -5 } }
+    ]}
+];
+
+// ===================================================================
+//  天命题数据
+// ===================================================================
+const FATE_QUESTIONS = [
+  { icon: '🍂', prompt: '你闭上眼，脑海中浮现出一个画面——\n那是一个什么样的地方？',
+    weights: { zhangguolao: 25, hanxiangzi: 20, zhongliquan: 15, lyudongbin: 15, lancaihe: 10 } },
+  { icon: '🌙', prompt: '你做了一个梦，梦里有人叫你的名字——\n那个声音给你什么感觉？',
+    weights: { yangjian: 25, lancaihe: 20, hexiangu: 15, lyudongbin: 15, zhangguolao: 10 } },
+  { icon: '🌊', prompt: '你面前出现了一条河，河上没有桥——\n你直觉这条河叫什么名字？',
+    weights: { zhongliquan: 22, sunwukong: 20, tieguaili: 18, hexiangu: 15, caoguojiu: 10 } },
+  { icon: '🔥', prompt: '你看到远处的天边有一道奇异的光——\n你第一反应那是什么？',
+    weights: { sunwukong: 22, hexiangu: 20, zhongliquan: 15, yangjian: 15, lancaihe: 12 } }
+];
+
+// ===================================================================
+//  状态
+// ===================================================================
+let currentQ = 0;
+let scores = {};
+let totalQuestions = QUESTIONS.length;
+let fateAsked = 0;
+const MAX_FATE = 2;
+let answerHistory = [];  // { qIndex, optIndex }
+
+function initScores() {
+  scores = {};
+  answerHistory = [];
+  CHARACTERS.forEach(ch => { scores[ch.id] = 0; });
+}
+
+// ===================================================================
+//  SVG 简笔画（电影《八仙！》风格 — 偏卡通、烟火气）
+// ===================================================================
+function getArt(id) {
+  const arts = {
+    // 钟离权：电影版痞帅市井惯偷 — 敞怀粗衣、酒葫芦、狡黠坏笑
+    zhongliquan: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 痞帅脸型，斜刘海 -->
+      <ellipse cx="70" cy="26" rx="14" ry="16" stroke-width="2.2"/>
+      <path d="M58 16 Q62 6 70 4 Q80 6 84 12" stroke-width="2"/>
+      <path d="M56 22 L50 18 Q48 14 52 12 L58 16" stroke-width="1.5"/>
+      <!-- 坏笑眉眼 -->
+      <line x1="60" y1="24" x2="66" y2="26" stroke-width="1.8"/>
+      <line x1="74" y1="26" x2="80" y2="24" stroke-width="1.8"/>
+      <path d="M62 34 Q70 40 78 34" stroke-width="2"/>
+      <!-- 敞怀粗衣 -->
+      <path d="M50 40 L44 104 Q42 120 50 130 L92 130 Q100 120 98 104 L92 40" stroke-width="2"/>
+      <path d="M62 40 L70 56 L78 40" stroke-width="1.5"/>
+      <!-- 内衬敞口 -->
+      <path d="M58 40 L70 52 L82 40" stroke-width="1" stroke-dasharray="2 3"/>
+      <!-- 腰带斜挎 -->
+      <line x1="50" y1="84" x2="92" y2="78" stroke-width="2.5"/>
+      <path d="M50 84 L44 88" stroke-width="2"/>
+      <!-- 酒葫芦 -->
+      <path d="M96 44 L112 38 Q118 34 116 44 L108 58" stroke-width="2"/>
+      <ellipse cx="112" cy="48" rx="9" ry="14" stroke-width="1.8"/>
+      <line x1="112" y1="34" x2="112" y2="28" stroke-width="2"/>
+      <line x1="107" y1="32" x2="117" y2="32" stroke-width="1.5"/>
+      <!-- 绑腿裤 -->
+      <path d="M54 130 L48 170" stroke-width="2"/>
+      <path d="M88 130 L94 170" stroke-width="2"/>
+      <path d="M44 166 L48 170 L56 168" stroke-width="1.5"/>
+      <path d="M90 168 L94 170 L100 166" stroke-width="1.5"/>
+    </svg>`,
+    // 吕洞宾：电影版清冷谋士 — 儒衫、背剑、旁边一条小狗
+    lyudongbin: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 清秀冷面 -->
+      <circle cx="70" cy="24" r="14" stroke-width="2.2"/>
+      <path d="M58 16 Q64 6 70 4 Q76 6 82 16" stroke-width="2"/>
+      <!-- 冷淡眉眼 -->
+      <line x1="60" y1="22" x2="66" y2="24" stroke-width="1.5"/>
+      <line x1="74" y1="24" x2="80" y2="22" stroke-width="1.5"/>
+      <path d="M64 30 Q70 34 76 30" stroke-width="1.5"/>
+      <!-- 交领儒衫 -->
+      <path d="M52 38 L46 108 Q44 124 52 134 L88 134 Q96 124 94 108 L88 38" stroke-width="2"/>
+      <path d="M62 38 L70 52 L78 38" stroke-width="1.5"/>
+      <!-- 腰带 -->
+      <line x1="52" y1="82" x2="88" y2="82" stroke-width="2"/>
+      <!-- 背剑 -->
+      <line x1="96" y1="46" x2="116" y2="124" stroke-width="3.5"/>
+      <rect x="92" y="40" width="8" height="16" rx="2" stroke-width="1.5"/>
+      <circle cx="96" cy="38" r="3" stroke-width="1.5"/>
+      <!-- 衣袖 -->
+      <path d="M52 42 L34 52 M88 42 L106 52" stroke-width="1.8"/>
+      <!-- 衣摆 -->
+      <path d="M46 108 L40 116 M94 108 L100 116" stroke-width="1.5"/>
+      <!-- 腿 -->
+      <path d="M56 134 L50 172" stroke-width="2"/>
+      <path d="M84 134 L90 172" stroke-width="2"/>
+      <!-- 小狗（怕狗梗，蹲在脚边仰头叫） -->
+      <ellipse cx="28" cy="162" rx="8" ry="6" stroke-width="1.5"/>
+      <circle cx="26" cy="158" r="4" stroke-width="1.5"/>
+      <circle cx="25" cy="157" r="1.2" fill="#e8c87a"/>
+      <path d="M20 158 Q18 154 22 152" stroke-width="1.2"/>
+      <path d="M34 160 Q38 156 36 164" stroke-width="1.2"/>
+      <path d="M30 168 Q28 174 24 176" stroke-width="1.5"/>
+      <path d="M36 168 Q38 174 42 176" stroke-width="1.5"/>
+      <!-- 吕洞宾闪躲姿势 -->
+      <path d="M50 172 L46 168" stroke-width="1.5"/>
+      <circle cx="44" cy="166" r="2" stroke-width="1"/>
+    </svg>`,
+    // 何仙姑：电影版战力天花板 — 劲装侠女、高马尾、荷花元素
+    hexiangu: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 英气脸 -->
+      <circle cx="70" cy="24" r="13" stroke-width="2.2"/>
+      <!-- 高马尾 -->
+      <path d="M70 12 L70 2" stroke-width="2"/>
+      <path d="M66 6 Q70 0 74 6" stroke-width="2"/>
+      <path d="M56 24 Q50 28 46 38" stroke-width="1.5"/>
+      <path d="M84 24 Q90 28 94 38" stroke-width="1.5"/>
+      <!-- 剑眉星目 -->
+      <line x1="58" y1="22" x2="66" y2="24" stroke-width="2"/>
+      <line x1="74" y1="24" x2="82" y2="22" stroke-width="2"/>
+      <circle cx="64" cy="24" r="2" stroke-width="1"/>
+      <circle cx="76" cy="24" r="2" stroke-width="1"/>
+      <path d="M64 30 Q70 34 76 30" stroke-width="1.5"/>
+      <!-- 劲装束腰 -->
+      <path d="M50 36 L44 100 Q42 116 50 128 L90 128 Q98 116 96 100 L90 36" stroke-width="2"/>
+      <line x1="50" y1="72" x2="90" y2="72" stroke-width="2.5"/>
+      <!-- 腰间飘带 -->
+      <path d="M50 72 L36 80 L32 90" stroke-width="2"/>
+      <path d="M90 72 L104 80 L108 90" stroke-width="2"/>
+      <!-- 护腕 -->
+      <path d="M50 44 L42 48 L40 52" stroke-width="1.5"/>
+      <path d="M90 44 L98 48 L100 52" stroke-width="1.5"/>
+      <!-- 荷花耳坠 -->
+      <circle cx="54" cy="26" r="2.5" stroke-width="1"/>
+      <circle cx="86" cy="26" r="2.5" stroke-width="1"/>
+      <path d="M52 28 L50 32 M88 28 L90 32" stroke-width="1"/>
+      <!-- 长靴 -->
+      <path d="M54 128 L48 170" stroke-width="2"/>
+      <path d="M86 128 L92 170" stroke-width="2"/>
+      <path d="M44 166 L48 170 L56 168" stroke-width="1.5"/>
+      <path d="M88 168 L92 170 L100 166" stroke-width="1.5"/>
+    </svg>`,
+    // 铁拐李：电影版川普笑匠 — 破衣烂衫拄拐、提火锅、滑稽草帽
+    tieguaili: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 圆滑笑脸 -->
+      <circle cx="70" cy="24" r="15" stroke-width="2.2"/>
+      <!-- 破草帽 -->
+      <path d="M50 16 Q60 4 70 2 Q80 4 90 16" stroke-width="2"/>
+      <path d="M48 16 Q70 10 92 16" stroke-width="1.5"/>
+      <path d="M54 14 Q54 8 60 6" stroke-width="1"/>
+      <path d="M86 14 Q86 8 80 6" stroke-width="1"/>
+      <!-- 眯眼笑 -->
+      <line x1="60" y1="22" x2="66" y2="24" stroke-width="2"/>
+      <line x1="74" y1="24" x2="80" y2="22" stroke-width="2"/>
+      <path d="M62 32 Q70 40 78 32" stroke-width="2"/>
+      <!-- 破衣 -->
+      <path d="M50 38 L42 104 Q40 120 48 130 L90 130 Q98 120 96 104 L90 38" stroke-width="2"/>
+      <line x1="50" y1="82" x2="90" y2="82" stroke-width="2"/>
+      <!-- 补丁 -->
+      <rect x="60" y="90" width="10" height="8" rx="1" stroke-width="1" stroke-dasharray="2 2"/>
+      <rect x="76" y="56" width="8" height="8" rx="1" stroke-width="1" stroke-dasharray="2 2"/>
+      <!-- 拐杖 -->
+      <line x1="86" y1="40" x2="98" y2="176" stroke-width="3"/>
+      <circle cx="86" cy="52" r="4" stroke-width="1.5"/>
+      <!-- 瘸腿 -->
+      <path d="M56 130 L50 170" stroke-width="2"/>
+      <path d="M78 130 L84 148" stroke-width="2"/>
+      <ellipse cx="50" cy="172" rx="7" ry="4" stroke-width="1.5"/>
+      <!-- 另一只手提火锅 -->
+      <path d="M36 56 Q28 54 26 48 L30 40 L40 44" stroke-width="2"/>
+      <ellipse cx="34" cy="48" rx="10" ry="6" stroke-width="1.5"/>
+      <path d="M24 48 L22 58 Q22 64 28 64 L40 64 Q46 64 46 58 L44 48" stroke-width="1.5"/>
+      <path d="M28 52 L30 58 M34 50 L34 58 M40 52 L38 58" stroke-width="1.2"/>
+    </svg>`,
+    // 曹国舅：电影版贵气打工人 — 官帽歪戴、玉笏、疲惫眼神、驼背
+    caoguojiu: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 富贵圆脸 -->
+      <circle cx="70" cy="24" r="15" stroke-width="2.2"/>
+      <!-- 官帽（歪的） -->
+      <path d="M52 16 Q62 2 70 0 Q78 2 88 16" stroke-width="2"/>
+      <line x1="52" y1="16" x2="38" y2="10" stroke-width="2"/>
+      <line x1="88" y1="16" x2="102" y2="10" stroke-width="2"/>
+      <ellipse cx="38" cy="10" rx="5" ry="3" stroke-width="1.5" transform="rotate(-10 38 10)"/>
+      <ellipse cx="102" cy="10" rx="5" ry="3" stroke-width="1.5" transform="rotate(10 102 10)"/>
+      <!-- 死鱼眼、黑眼圈 -->
+      <line x1="60" y1="22" x2="66" y2="24" stroke-width="1.5"/>
+      <line x1="74" y1="24" x2="80" y2="22" stroke-width="1.5"/>
+      <circle cx="63" cy="24" r="1.5" stroke-width="1"/>
+      <circle cx="77" cy="24" r="1.5" stroke-width="1"/>
+      <path d="M58 18 Q63 16 68 18 M72 18 Q77 16 82 18" stroke-width="1" stroke-dasharray="1 2"/>
+      <path d="M64 32 Q70 36 76 32" stroke-width="1.5"/>
+      <!-- 官服（驼背） -->
+      <path d="M50 38 Q42 80 44 108 Q44 124 52 134 L88 134 Q96 124 98 108 Q100 80 90 38" stroke-width="2"/>
+      <ellipse cx="70" cy="42" rx="14" ry="4" stroke-width="1.5"/>
+      <!-- 玉带（松松垮垮） -->
+      <line x1="48" y1="88" x2="92" y2="84" stroke-width="2.5"/>
+      <rect x="66" y="82" width="8" height="8" rx="2" stroke-width="1.5"/>
+      <!-- 玉笏 -->
+      <rect x="82" y="48" width="6" height="36" rx="2" stroke-width="2"/>
+      <path d="M82 48 L78 44 L88 44" stroke-width="1.5"/>
+      <!-- 腿 -->
+      <path d="M56 134 L50 172" stroke-width="2"/>
+      <path d="M84 134 L90 172" stroke-width="2"/>
+      <path d="M46 168 L50 172 L58 170" stroke-width="1.5"/>
+      <path d="M86 170 L90 172 L98 168" stroke-width="1.5"/>
+    </svg>`,
+    // 蓝采和：电影版纯真少年 — 矮小身影、提花灯、双丫髻、圆眼
+    lancaihe: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 圆圆小脸 -->
+      <circle cx="70" cy="20" r="13" stroke-width="2.2"/>
+      <!-- 双丫髻 -->
+      <circle cx="62" cy="6" r="5" stroke-width="1.5"/>
+      <circle cx="78" cy="6" r="5" stroke-width="1.5"/>
+      <path d="M58 10 Q62 4 66 10" stroke-width="1"/>
+      <path d="M74 10 Q78 4 82 10" stroke-width="1"/>
+      <!-- 圆溜溜大眼睛 -->
+      <circle cx="64" cy="18" r="3.5" stroke-width="1.5"/>
+      <circle cx="76" cy="18" r="3.5" stroke-width="1.5"/>
+      <circle cx="64" cy="18" r="1.5" fill="#e8c87a"/>
+      <circle cx="76" cy="18" r="1.5" fill="#e8c87a"/>
+      <path d="M66 26 Q70 30 74 26" stroke-width="2"/>
+      <!-- 短打童装 -->
+      <path d="M52 32 L46 88 Q44 104 52 112 L88 112 Q96 104 94 88 L88 32" stroke-width="2"/>
+      <line x1="52" y1="64" x2="88" y2="64" stroke-width="2"/>
+      <!-- 飘带 -->
+      <path d="M50 42 L34 38 L28 46" stroke-width="2"/>
+      <path d="M90 42 L106 38 L112 46" stroke-width="2"/>
+      <!-- 花灯 -->
+      <path d="M100 34 L100 22" stroke-width="1.5"/>
+      <rect x="92" y="34" width="16" height="24" rx="3" stroke-width="2"/>
+      <line x1="96" y1="40" x2="104" y2="40" stroke-width="1.5"/>
+      <line x1="96" y1="46" x2="104" y2="46" stroke-width="1.5"/>
+      <line x1="96" y1="52" x2="104" y2="52" stroke-width="1.5"/>
+      <path d="M96 58 L92 66 M100 58 L100 66 M104 58 L108 66" stroke-width="1.2"/>
+      <!-- 短腿 -->
+      <path d="M56 112 L50 168" stroke-width="2"/>
+      <path d="M84 112 L90 168" stroke-width="2"/>
+      <ellipse cx="50" cy="170" rx="6" ry="3" stroke-width="1.5"/>
+      <ellipse cx="90" cy="170" rx="6" ry="3" stroke-width="1.5"/>
+    </svg>`,
+    // 韩湘子：电影版技术宅乐师 — 手握唢呐、随身工具、卷袖
+    hanxiangzi: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 清瘦脸 -->
+      <circle cx="70" cy="24" r="14" stroke-width="2.2"/>
+      <path d="M58 16 Q64 8 70 6 Q76 8 82 16" stroke-width="2"/>
+      <!-- 专注眼神 -->
+      <line x1="60" y1="22" x2="66" y2="24" stroke-width="1.5"/>
+      <line x1="74" y1="24" x2="80" y2="22" stroke-width="1.5"/>
+      <circle cx="64" cy="23" r="1.5" stroke-width="1"/>
+      <circle cx="76" cy="23" r="1.5" stroke-width="1"/>
+      <path d="M64 30 Q70 34 76 30" stroke-width="1.5"/>
+      <!-- 卷袖布衣 -->
+      <path d="M52 38 L46 104 Q44 120 52 130 L88 130 Q96 120 94 104 L88 38" stroke-width="2"/>
+      <path d="M62 38 L70 52 L78 38" stroke-width="1.5"/>
+      <line x1="52" y1="80" x2="88" y2="80" stroke-width="2"/>
+      <!-- 卷起的袖子 -->
+      <path d="M52 44 L44 48 M44 48 L46 54" stroke-width="1.5"/>
+      <path d="M88 44 L96 48 M96 48 L94 54" stroke-width="1.5"/>
+      <!-- 唢呐（横吹） -->
+      <path d="M36 54 L28 48 Q24 44 26 40 L32 38 L42 48" stroke-width="2.5"/>
+      <ellipse cx="32" cy="40" rx="8" ry="4" stroke-width="1.5" transform="rotate(-25 32 40)"/>
+      <line x1="42" y1="48" x2="46" y2="56" stroke-width="1.5"/>
+      <!-- 另一只手拿工具/书本 -->
+      <path d="M90 44 L104 52" stroke-width="1.8"/>
+      <rect x="104" y="48" width="6" height="10" rx="1" stroke-width="1.5"/>
+      <!-- 腿 -->
+      <path d="M56 130 L50 170" stroke-width="2"/>
+      <path d="M84 130 L90 170" stroke-width="2"/>
+      <ellipse cx="50" cy="170" rx="6" ry="3" stroke-width="1.5"/>
+      <ellipse cx="90" cy="170" rx="6" ry="3" stroke-width="1.5"/>
+    </svg>`,
+    // 张果老：电影版老江湖 — 倒骑毛驴、手拿酒葫芦、一脸得意
+    zhangguolao: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 精明老人脸 -->
+      <circle cx="70" cy="20" r="13" stroke-width="2.2"/>
+      <circle cx="70" cy="8" r="4" stroke-width="1.5"/>
+      <!-- 长眉 -->
+      <path d="M56 18 Q56 26 50 30 M84 18 Q84 26 90 30" stroke-width="2"/>
+      <!-- 眯眼笑（狡黠） -->
+      <line x1="60" y1="20" x2="66" y2="22" stroke-width="2"/>
+      <line x1="74" y1="22" x2="80" y2="20" stroke-width="2"/>
+      <path d="M64 28 Q70 32 76 28" stroke-width="1.5"/>
+      <!-- 山羊胡 -->
+      <path d="M68 32 Q70 42 72 32" stroke-width="1.5"/>
+      <path d="M66 36 Q70 46 74 36" stroke-width="1.2"/>
+      <!-- 宽松道袍 -->
+      <path d="M52 32 L46 92 Q44 106 52 114 L88 114 Q96 106 94 92 L88 32" stroke-width="2"/>
+      <line x1="52" y1="66" x2="88" y2="66" stroke-width="2"/>
+      <!-- 倒骑侧坐 -->
+      <path d="M50 114 L42 136" stroke-width="2"/>
+      <path d="M90 114 L98 136" stroke-width="2"/>
+      <!-- 毛驴 -->
+      <path d="M30 136 Q22 130 24 122 L30 116 L108 116 L114 122 Q116 130 108 136Z" stroke-width="2"/>
+      <path d="M30 116 L16 108 Q10 104 12 98 L18 96 L30 108" stroke-width="2"/>
+      <ellipse cx="16" cy="96" rx="3.5" ry="7" stroke-width="1.5" transform="rotate(-15 16 96)"/>
+      <ellipse cx="22" cy="95" rx="3.5" ry="6" stroke-width="1.5" transform="rotate(-5 22 95)"/>
+      <circle cx="16" cy="102" r="2" stroke-width="1"/>
+      <!-- 驴尾 -->
+      <path d="M108 128 Q122 124 120 136" stroke-width="1.5"/>
+      <!-- 驴腿 -->
+      <line x1="42" y1="136" x2="40" y2="168" stroke-width="2"/>
+      <line x1="58" y1="136" x2="56" y2="168" stroke-width="2"/>
+      <line x1="82" y1="136" x2="84" y2="168" stroke-width="2"/>
+      <line x1="98" y1="136" x2="100" y2="168" stroke-width="2"/>
+      <!-- 酒葫芦 -->
+      <ellipse cx="118" cy="44" rx="6" ry="10" stroke-width="1.5"/>
+      <line x1="118" y1="34" x2="118" y2="28" stroke-width="1.5"/>
+      <line x1="114" y1="32" x2="122" y2="32" stroke-width="1"/>
+    </svg>`,
+    // 杨戬：电影版悲情战神 — 铠甲、三尖两刃刀、天眼、披风猎猎
+    yangjian: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 俊朗冷脸 -->
+      <circle cx="70" cy="24" r="15" stroke-width="2.2"/>
+      <path d="M56 16 Q64 4 70 2 Q76 4 84 16" stroke-width="2"/>
+      <rect x="66" y="4" width="8" height="4" rx="1.5" stroke-width="1.5"/>
+      <!-- 天眼（竖目） -->
+      <ellipse cx="70" cy="18" rx="5" ry="3.5" stroke-width="1.8"/>
+      <circle cx="70" cy="18" r="2" fill="#e8c87a" fill-opacity="0.3"/>
+      <!-- 锐利眉眼 -->
+      <line x1="58" y1="24" x2="64" y2="26" stroke-width="2"/>
+      <line x1="76" y1="26" x2="82" y2="24" stroke-width="2"/>
+      <circle cx="62" cy="26" r="2" stroke-width="1"/>
+      <circle cx="78" cy="26" r="2" stroke-width="1"/>
+      <path d="M60 32 Q70 38 80 32" stroke-width="1.5"/>
+      <!-- 铠甲 -->
+      <path d="M52 38 L46 108 Q44 124 52 134 L88 134 Q96 124 94 108 L88 38" stroke-width="2"/>
+      <!-- 护心镜 -->
+      <circle cx="70" cy="60" r="8" stroke-width="1.5"/>
+      <circle cx="70" cy="60" r="4" stroke-width="1"/>
+      <!-- 腰带 -->
+      <line x1="50" y1="86" x2="90" y2="86" stroke-width="3"/>
+      <rect x="66" y="82" width="8" height="8" rx="2" stroke-width="1.5"/>
+      <!-- 披风（飘动） -->
+      <path d="M46 52 L26 56 M94 52 L114 56" stroke-width="2.5"/>
+      <path d="M26 56 Q18 66 22 80 Q26 90 30 100" stroke-width="2"/>
+      <path d="M114 56 Q122 66 118 80 Q114 90 110 100" stroke-width="2"/>
+      <!-- 三尖两刃刀 -->
+      <line x1="106" y1="44" x2="128" y2="160" stroke-width="3.5"/>
+      <path d="M104 44 L106 34 L110 44" stroke-width="2"/>
+      <path d="M108 44 L114 38 L116 46" stroke-width="2"/>
+      <rect x="102" y="36" width="12" height="10" rx="2" stroke-width="1.5"/>
+      <!-- 腿 -->
+      <path d="M56 134 L50 174" stroke-width="2"/>
+      <path d="M84 134 L90 174" stroke-width="2"/>
+      <path d="M46 170 L50 174 L58 172" stroke-width="1.5"/>
+      <path d="M86 172 L90 174 L98 170" stroke-width="1.5"/>
+    </svg>`,
+    // 孙悟空：电影版彩蛋客串 — 猴脸、金箍棒、虎皮裙、灵动
+    sunwukong: `<svg viewBox="0 0 140 180" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 猴脸（雷公嘴） -->
+      <ellipse cx="70" cy="24" rx="15" ry="17" stroke-width="2.2"/>
+      <path d="M54 10 Q62 0 70 -2 Q78 0 86 10" stroke-width="2.2"/>
+      <!-- 火眼金睛 -->
+      <circle cx="62" cy="22" r="4.5" stroke-width="1.5"/>
+      <circle cx="78" cy="22" r="4.5" stroke-width="1.5"/>
+      <circle cx="62" cy="22" r="2" fill="#e8c87a"/>
+      <circle cx="78" cy="22" r="2" fill="#e8c87a"/>
+      <path d="M64 32 Q70 38 76 32" stroke-width="2"/>
+      <!-- 毛脸 -->
+      <path d="M54 26 Q48 30 46 38" stroke-width="1.5"/>
+      <path d="M86 26 Q92 30 94 38" stroke-width="1.5"/>
+      <path d="M56 30 L52 34 M84 30 L88 34" stroke-width="1.2"/>
+      <!-- 紧箍咒 -->
+      <ellipse cx="70" cy="10" rx="16" ry="4" stroke-width="2" stroke-dasharray="3 2"/>
+      <!-- 虎皮裙 -->
+      <path d="M52 40 L46 96 Q44 112 52 122 L88 122 Q96 112 94 96 L88 40" stroke-width="2"/>
+      <line x1="52" y1="70" x2="88" y2="70" stroke-width="2"/>
+      <path d="M54 74 L58 68 M62 78 L66 70 M70 80 L74 70 M78 78 L82 68" stroke-width="1.5"/>
+      <!-- 披风 -->
+      <path d="M48 42 L28 46 Q22 50 26 60" stroke-width="2"/>
+      <path d="M92 42 L112 46 Q118 50 114 60" stroke-width="2"/>
+      <!-- 金箍棒 -->
+      <line x1="100" y1="42" x2="126" y2="126" stroke-width="3.5"/>
+      <rect x="98" y="36" width="6" height="12" rx="2" stroke-width="1.5"/>
+      <line x1="98" y1="36" x2="104" y2="36" stroke-width="2"/>
+      <!-- 毛腿 -->
+      <path d="M56 122 L50 170" stroke-width="2"/>
+      <path d="M84 122 L90 170" stroke-width="2"/>
+      <ellipse cx="50" cy="172" rx="6" ry="3" stroke-width="1.5"/>
+      <ellipse cx="90" cy="172" rx="6" ry="3" stroke-width="1.5"/>
+      <!-- 毫毛（飞散） -->
+      <path d="M86 12 Q92 8 90 4 M88 8 Q94 4 92 0" stroke-width="1.2"/>
+      <path d="M94 6 Q100 2 98 -2" stroke-width="1"/>
+    </svg>`
+  };
+  return arts[id] || '';
+}
+
+// ===================================================================
+//  渲染
+// ===================================================================
+function renderQuestion(index) {
+  const q = QUESTIONS[index];
+  if (!q) return;
+  const total = QUESTIONS.length;
+  document.getElementById('progressFill').style.width = Math.round((index / total) * 100) + '%';
+  document.getElementById('progressText').textContent = `${index}/${total}`;
+
+  // 标记已选过的选项
+  const prevOpt = answerHistory.find(h => h.qIndex === index);
+  const prevOptIdx = prevOpt ? prevOpt.optIndex : -1;
+
+  document.getElementById('quizArea').innerHTML = `
+    <div class="question-card active">
+      <div class="q-number">第 ${index + 1} 题 / 共 ${total} 题</div>
+      <div class="q-title">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((opt, i) => `<button class="option-btn${i === prevOptIdx ? ' selected' : ''}" onclick="selectOption(this, ${index})">${opt.text}</button>`).join('')}
+      </div>
+      <div class="q-nav">
+        <button class="back-btn" onclick="goBack()" ${index === 0 ? 'disabled' : ''}>← 上一题</button>
+        <span class="q-counter">${index + 1} / ${total}</span>
+      </div>
+    </div>
+  `;
+}
+
+function selectOption(btn, qIndex) {
+  const q = QUESTIONS[qIndex];
+  const optIndex = Array.from(btn.parentElement.children).indexOf(btn);
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  // 如果已经答过这一题，先撤销之前的分数
+  const prev = answerHistory.find(h => h.qIndex === qIndex);
+  if (prev) {
+    const prevOpt = QUESTIONS[qIndex].opts[prev.optIndex];
+    for (const [cid, val] of Object.entries(prevOpt.map)) {
+      if (scores[cid] !== undefined) scores[cid] -= val;
+    }
+    prev.optIndex = optIndex;
+  } else {
+    answerHistory.push({ qIndex, optIndex });
+  }
+
+  const opt = q.opts[optIndex];
+  for (const [cid, val] of Object.entries(opt.map)) {
+    if (scores[cid] !== undefined) scores[cid] += val;
+  }
+
+  setTimeout(() => {
+    currentQ = Math.max(currentQ, qIndex + 1);
+    if (currentQ < QUESTIONS.length) renderQuestion(currentQ);
+    else checkTies();
+  }, 300);
+}
+
+function goBack() {
+  if (currentQ <= 0 || answerHistory.length === 0) return;
+  currentQ--;
+  // 如果当前题目已经回答过，撤销分数
+  const prev = answerHistory.find(h => h.qIndex === currentQ);
+  if (prev) {
+    const opt = QUESTIONS[currentQ].opts[prev.optIndex];
+    for (const [cid, val] of Object.entries(opt.map)) {
+      if (scores[cid] !== undefined) scores[cid] -= val;
+    }
+    answerHistory = answerHistory.filter(h => h.qIndex !== currentQ);
+  }
+  renderQuestion(currentQ);
+}
+
+// ===================================================================
+//  平局 → 天命题
+// ===================================================================
+function checkTies() {
+  const sorted = getSortedScores();
+  const topScore = sorted[0]?.score || 0;
+  const tied = sorted.filter(s => s.score === topScore);
+
+  if (tied.length >= 2 && fateAsked < MAX_FATE) askFateQuestion(sorted);
+  else showResult(sorted);
+}
+
+function getSortedScores() {
+  return CHARACTERS.map(ch => ({ id: ch.id, name: ch.name, score: scores[ch.id] || 0 }))
+    .sort((a, b) => b.score - a.score);
+}
+
+// ===================================================================
+//  天命题
+// ===================================================================
+function askFateQuestion(sorted) {
+  document.getElementById('quizArea').style.display = 'none';
+  const fq = FATE_QUESTIONS[fateAsked % FATE_QUESTIONS.length];
+
+  document.getElementById('fateArea').innerHTML = `
+    <div class="fate-card active">
+      <div class="fate-icon">${fq.icon}</div>
+      <div class="fate-label">✦ 天 命 题 ✦</div>
+      <div class="fate-prompt">${fq.prompt.replace(/\n/g, '<br>')}</div>
+      <button class="fate-btn" id="fateBtn" onclick="resolveFate()">☯ 听 凭 天 命</button>
+      <div class="fate-reveal" id="fateReveal"></div>
+    </div>
+  `;
+  document.getElementById('progressText').textContent = '✦ 天命';
+}
+
+function resolveFate() {
+  const btn = document.getElementById('fateBtn');
+  btn.disabled = true;
+  btn.textContent = '☯ 命 运 回 响 …';
+
+  const fq = FATE_QUESTIONS[fateAsked % FATE_QUESTIONS.length];
+  // 加权随机选
+  const entries = Object.entries(fq.weights);
+  const total = entries.reduce((s, [, v]) => s + v, 0);
+  let r = Math.random() * total;
+  let chosen = entries[0][0];
+  for (const [id, w] of entries) {
+    r -= w;
+    if (r <= 0) { chosen = id; break; }
+  }
+
+  scores[chosen] += 18;
+  const ch = CHARACTERS.find(c => c.id === chosen);
+  const reveal = document.getElementById('fateReveal');
+  reveal.textContent = `☯ 天命眷顾 · ${ch.name} (+18)`;
+  setTimeout(() => reveal.classList.add('show'), 100);
+
+  fateAsked++;
+  setTimeout(() => {
+    document.getElementById('fateArea').innerHTML = '';
+    document.getElementById('quizArea').style.display = 'block';
+    checkTies();
+  }, 1800);
+}
+
+// ===================================================================
+//  结果
+// ===================================================================
+function showResult(sorted) {
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('fateArea').innerHTML = '';
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressText').textContent = '✨';
+
+  const top = sorted[0];
+  const ch = CHARACTERS.find(c => c.id === top.id);
+  if (!ch) return;
+
+  const card = document.getElementById('resultCard');
+  card.classList.add('active');
+  document.getElementById('resultName').textContent = ch.name;
+  document.getElementById('resultTitle').textContent = ch.title;
+  document.getElementById('resultArt').innerHTML = getArt(ch.id);
+  document.getElementById('resultDesc').textContent = ch.desc;
+  document.getElementById('resultTags').innerHTML = ch.tags.map(t => `<span>${t}</span>`).join('');
+
+  // 显示星座 & MBTI
+  const badgeHtml = [];
+  if (ch.zodiac) badgeHtml.push(`<span class="badge-zodiac">${ch.zodiacIcon || ''} ${ch.zodiac}</span>`);
+  if (ch.mbti) badgeHtml.push(`<span class="badge-mbti">${ch.mbti} · ${ch.mbtiLabel || ''}</span>`);
+  document.getElementById('profileBadges').innerHTML = badgeHtml.join('');
+
+  // 显示意见箱
+  document.getElementById('feedbackSection').classList.add('active');
+
+  renderScoreBars(sorted);
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+}
+
+function renderScoreBars(sorted) {
+  const container = document.getElementById('scoreBars');
+  const absMax = Math.max(...sorted.map(s => Math.abs(s.score)), 1);
+
+  container.innerHTML = sorted.map((s, idx) => {
+    const pct = (s.score / absMax) * 100;
+    return `
+      <div class="score-row">
+        <span class="sname" style="color:${idx === 0 ? '#f6d365' : '#b0a090'};font-weight:${idx === 0 ? '700' : '400'}">${s.name}</span>
+        <div class="sbar-wrap"><div class="sbar ${s.score >= 0 ? 'pos' : 'neg'}" style="width:0%"></div></div>
+        <span class="sval" style="color:${idx === 0 ? '#f6d365' : '#807060'}">${s.score > 0 ? '+' : ''}${s.score}</span>
+      </div>
+    `;
+  }).join('');
+
+  setTimeout(() => {
+    const sortedNow = getSortedScores();
+    const absMax2 = Math.max(...sortedNow.map(s => Math.abs(s.score)), 1);
+    container.querySelectorAll('.sbar').forEach((bar, i) => {
+      setTimeout(() => { bar.style.width = Math.abs((sortedNow[i].score / absMax2) * 100) + '%'; }, i * 60);
+    });
+  }, 200);
+}
+
+// ===================================================================
+//  图鉴
+// ===================================================================
+function showAllCharacters() {
+  const el = document.getElementById('allCharacters');
+  el.classList.toggle('active');
+  const grid = document.getElementById('charGrid');
+  if (grid.children.length === 0) {
+    const sorted = getSortedScores();
+    grid.innerHTML = CHARACTERS.map(ch => {
+      const sc = sorted.find(s => s.id === ch.id);
+      return `<div class="char-mini" onclick="showCharacter('${ch.id}')">
+        ${getArt(ch.id)}
+        <div class="cname">${ch.name}</div>
+        <div class="cscore">${sc ? (sc.score > 0 ? '+' : '') + sc.score : '0'}</div>
+      </div>`;
+    }).join('');
+  }
+  if (el.classList.contains('active')) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function showCharacter(id) {
+  const ch = CHARACTERS.find(c => c.id === id);
+  if (!ch) return;
+  document.getElementById('resultName').textContent = ch.name;
+  document.getElementById('resultTitle').textContent = ch.title;
+  document.getElementById('resultArt').innerHTML = getArt(ch.id);
+  document.getElementById('resultDesc').textContent = ch.desc;
+  document.getElementById('resultTags').innerHTML = ch.tags.map(t => `<span>${t}</span>`).join('');
+  const badgeHtml = [];
+  if (ch.zodiac) badgeHtml.push(`<span class="badge-zodiac">${ch.zodiacIcon || ''} ${ch.zodiac}</span>`);
+  if (ch.mbti) badgeHtml.push(`<span class="badge-mbti">${ch.mbti} · ${ch.mbtiLabel || ''}</span>`);
+  document.getElementById('profileBadges').innerHTML = badgeHtml.join('');
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function restartQuiz() {
+  currentQ = 0; fateAsked = 0; initScores();
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('fateArea').innerHTML = '';
+  document.getElementById('resultCard').classList.remove('active');
+  document.getElementById('allCharacters').classList.remove('active');
+  document.getElementById('feedbackSection').classList.remove('active');
+  document.getElementById('feedbackStatus').textContent = '';
+  renderQuestion(0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================================================================
+//  意见箱 —— 通过 AJAX 直接发送（无需跳转邮件客户端）
+// ===================================================================
+// ⚡ 使用 Formspree 免费服务：https://formspree.io
+//  1. 注册免费账号 → Create New Form → 得到 Form Endpoint
+//  2. 把下面的 URL 替换成你的 Formspree 地址
+//  3. 搞定！用户填表点发送就直接 POST 到你邮箱了
+// ===================================================================
+const FEEDBACK_ENDPOINT = 'https://formspree.io/f/你的表单ID'; // ← 换成你的 Formspree 地址
+
+function sendFeedback() {
+  const text = document.getElementById('feedbackText').value.trim();
+  const email = document.getElementById('feedbackEmail').value.trim();
+  const status = document.getElementById('feedbackStatus');
+
+  if (!text) {
+    status.textContent = '请先写点什么～';
+    status.style.color = '#b06060';
+    return;
+  }
+
+  const btn = document.querySelector('.feedback-submit');
+  btn.disabled = true;
+  btn.textContent = '📨 发送中…';
+  status.textContent = '';
+
+  // 通过 AJAX POST 到 Formspree，直接转发到你的邮箱
+  fetch(FEEDBACK_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      message: text,
+      replyTo: email || '未留邮箱',
+      _subject: '《八仙！》人格测试 · 意见反馈'
+    })
+  })
+  .then(res => {
+    if (res.ok) {
+      status.textContent = '✅ 已发送！感谢你的意见 🙏';
+      status.style.color = '#6a8a6a';
+      document.getElementById('feedbackText').value = '';
+      document.getElementById('feedbackEmail').value = '';
+    } else {
+      throw new Error('发送失败');
+    }
+  })
+  .catch(() => {
+    status.textContent = '❌ 发送失败，请检查 FEEDBACK_ENDPOINT 是否配置正确';
+    status.style.color = '#b06060';
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.textContent = '📨 发送';
+  });
+}
+
+initScores();
+renderQuestion(0);
+</script>
+
+</body>
+</html>

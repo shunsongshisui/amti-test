@@ -490,6 +490,8 @@ function drawFate() {
         else finishFate();
       } catch (e) {
         console.error('advance error:', e);
+        btn.disabled = false;
+        btn.textContent = '☯ 听 凭 天 命';
       }
     }, 2000);
 

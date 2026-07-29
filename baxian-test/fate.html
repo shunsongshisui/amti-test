@@ -416,10 +416,12 @@ function showFate() {
   }
 
   const f = FATES[step];
+  console.log('showFate(' + step + '):', f ? f.icon : 'FATES[' + step + '] is UNDEFINED');
   if (!f) { finishFate(); return; }  // 安全兜底
-  document.getElementById('fateStep').textContent = `第 ${step + 1} / ${TOTAL_STEPS} 问`;
+  // 先设置内容，再设题号——方便排查
   document.getElementById('fateIcon').textContent = f.icon;
   document.getElementById('fateText').innerHTML = f.text;
+  document.getElementById('fateStep').textContent = `第 ${step + 1} / ${TOTAL_STEPS} 问`;
 
   const btn = document.getElementById('fateBtn');
   btn.disabled = false;

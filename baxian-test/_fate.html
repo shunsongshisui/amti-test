@@ -437,6 +437,12 @@ function drawFate() {
   btn.disabled = true;
   btn.textContent = '☯ 命 运 回 响 …';
 
+  // 终极安全兜底：5秒后无论什么原因都恢复按钮
+  const safetyTimer = setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = '☯ 听 凭 天 命';
+  }, 5000);
+
   try {
     // 安全检查
     if (step >= TOTAL_STEPS) { finishFate(); return; }
@@ -483,6 +489,7 @@ function drawFate() {
     step++;
 
     setTimeout(() => {
+      clearTimeout(safetyTimer);
       try {
         if (step < TOTAL_STEPS) showFate();
         else finishFate();

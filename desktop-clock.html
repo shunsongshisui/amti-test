@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>精美桌面钟</title>
+<style>
+  /* 字体使用系统默认 */
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg-gradient-1: #0f0c29;
+    --bg-gradient-2: #302b63;
+    --bg-gradient-3: #24243e;
+    --glass-bg: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.4);
+    --accent: #7c5cfc;
+    --accent-glow: rgba(124, 92, 252, 0.3);
+    --accent-secondary: #f472b6;
+    --hand-hour: #ffffff;
+    --hand-minute: #e0d8ff;
+    --hand-second: #f472b6;
+    --tick-color: rgba(255, 255, 255, 0.25);
+    --tick-color-major: rgba(255, 255, 255, 0.5);
+    --clock-face-bg: rgba(0, 0, 0, 0.25);
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --transition-speed: 0.4s;
+  }
+
+  [data-theme="light"] {
+    --bg-gradient-1: #e8e0f0;
+    --bg-gradient-2: #f5f0ff;
+    --bg-gradient-3: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.5);
+    --glass-border: rgba(124, 92, 252, 0.15);
+    --glass-shadow: rgba(124, 92, 252, 0.08);
+    --text-primary: #1a1a2e;
+    --text-secondary: rgba(26, 26, 46, 0.65);
+    --text-muted: rgba(26, 26, 46, 0.35);
+    --clock-face-bg: rgba(255, 255, 255, 0.4);
+    --tick-color: rgba(26, 26, 46, 0.18);
+    --tick-color-major: rgba(26, 26, 46, 0.35);
+    --card-bg: rgba(255, 255, 255, 0.3);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2), var(--bg-gradient-3));
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    overflow: hidden;
+    transition: background var(--transition-speed) ease;
+    position: relative;
+  }
+
+  /* Animated background particles */
+  .bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+    animation: orbFloat 20s ease-in-out infinite;
+  }
+  .bg-orb:nth-child(1) {
+    width: 500px; height: 500px;
+    background: #7c5cfc;
+    top: -10%; left: -5%;
+    animation-delay: 0s;
+  }
+  .bg-orb:nth-child(2) {
+    width: 400px; height: 400px;
+    background: #f472b6;
+    bottom: -8%; right: -5%;
+    animation-delay: -7s;
+  }
+  .bg-orb:nth-child(3) {
+    width: 350px; height: 350px;
+    background: #06b6d4;
+    top: 50%; left: 60%;
+    animation-delay: -14s;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(60px, -50px) scale(1.1); }
+    66% { transform: translate(-30px, 40px) scale(0.95); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    padding: 24px;
+  }
+
+  /* ===== Main Clock Card ===== */
+  .clock-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 56px;
+    padding: 48px;
+    box-shadow:
+      0 8px 40px var(--glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: all var(--transition-speed) ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    max-width: 520px;
+    width: 100%;
+  }
+
+  /* ===== Analog Clock ===== */
+  .clock-face {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: var(--clock-face-bg);
+    border: 2px solid var(--glass-border);
+    box-shadow:
+      0 0 40px var(--accent-glow),
+      inset 0 0 60px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+  }
+
+  .clock-face canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+  }
+
+  /* ===== Digital Display ===== */
+  .digital-wrap {
+    text-align: center;
+    user-select: none;
+    width: 100%;
+  }
+
+  .digital-time {
+    font-size: 72px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    transition: color var(--transition-speed) ease;
+    background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .digital-time .seconds {
+    font-size: 0.35em;
+    font-weight: 300;
+    opacity: 0.6;
+    -webkit-text-fill-color: var(--text-secondary);
+  }
+
+  .digital-date {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+    text-transform: uppercase;
+  }
+
+  .digital-date .day {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ===== Info Bar ===== */
+  .info-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    padding-top: 8px;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .info-item {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .info-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot.dot-hello { background: #34d399; }
+
+  /* ===== Theme Toggle ===== */
+  .theme-toggle {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 10;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px var(--glass-shadow);
+  }
+  .theme-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 24px var(--accent-glow);
+  }
+  .theme-toggle:active {
+    transform: scale(0.92);
+  }
+
+  /* ===== Fullscreen Toggle ===== */
+  .fullscreen-toggle {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 10;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px var(--glass-shadow);
+  }
+  .fullscreen-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 24px var(--accent-glow);
+  }
+  .fullscreen-toggle:active { transform: scale(0.92); }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 600px) {
+    .clock-card {
+      border-radius: 32px;
+      padding: 28px 20px;
+      gap: 28px;
+    }
+    .clock-face { width: 210px; height: 210px; }
+    .digital-time { font-size: 48px; letter-spacing: 3px; }
+    .digital-date { font-size: 13px; }
+    .info-bar { flex-wrap: wrap; }
+    .theme-toggle, .fullscreen-toggle {
+      width: 40px; height: 40px;
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .clock-face { width: 170px; height: 170px; }
+    .digital-time { font-size: 38px; letter-spacing: 2px; }
+    .clock-card { padding: 20px 14px; }
+  }
+
+  /* ===== Tick animation ===== */
+  @keyframes tickPulse {
+    0% { opacity: 1; }
+    100% { opacity: 0.3; }
+  }
+
+  /* Prevent FOUC on load */
+  .hidden { opacity: 0; }
+</style>
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+
+  <!-- Toggles -->
+  <button class="fullscreen-toggle" id="fullscreenBtn" title="全屏显示">⛶</button>
+  <button class="theme-toggle" id="themeBtn" title="切换主题">🌙</button>
+
+  <!-- Main -->
+  <div class="container hidden" id="app">
+    <div class="clock-card">
+      <!-- Analog Face -->
+      <div class="clock-face" id="clockFace">
+        <canvas id="analogCanvas" width="560" height="560"></canvas>
+      </div>
+
+      <!-- Digital -->
+      <div class="digital-wrap">
+        <div class="digital-time" id="digitalTime">00:00<span class="seconds">:00</span></div>
+        <div class="digital-date" id="digitalDate">----年--月--日 星期-</div>
+      </div>
+
+      <!-- Info -->
+      <div class="info-bar">
+        <span class="info-item"><span class="dot dot-hello"></span> 北京时间</span>
+        <span class="info-item" id="infoSeconds">脉搏 · 0 bpm</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+  (function() {
+    'use strict';
+
+    // ─── DOM refs ────────────────────────────────────────────
+    const canvas      = document.getElementById('analogCanvas');
+    const ctx         = canvas.getContext('2d');
+    const digitalTime = document.getElementById('digitalTime');
+    const digitalDate = document.getElementById('digitalDate');
+    const infoSeconds = document.getElementById('infoSeconds');
+    const themeBtn    = document.getElementById('themeBtn');
+    const fullBtn     = document.getElementById('fullscreenBtn');
+    const app         = document.getElementById('app');
+
+    const SIZE        = 560;
+    const CENTER      = SIZE / 2;
+    const RADIUS      = CENTER - 20;
+
+    // ─── State ───────────────────────────────────────────────
+    let theme = localStorage.getItem('clock-theme') || 'dark';
+    let animFrame = null;
+    let lastSecond = -1;
+    let secondPulse = false;
+
+    // ─── Init ────────────────────────────────────────────────
+    document.documentElement.setAttribute('data-theme', theme);
+    themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    app.classList.remove('hidden');
+
+    // ─── Theme toggle ────────────────────────────────────────
+    themeBtn.addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('clock-theme', theme);
+      themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    });
+
+    // ─── Fullscreen toggle ───────────────────────────────────
+    fullBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+    document.addEventListener('fullscreenchange', () => {
+      fullBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
+    });
+
+    // ─── Weekday names ───────────────────────────────────────
+    const WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+    // ─── Draw analog clock ───────────────────────────────────
+    function drawClock(hours, minutes, seconds, ms) {
+      ctx.clearRect(0, 0, SIZE, SIZE);
+
+      // smooth second hand
+      const smoothSec = seconds + ms / 1000;
+
+      const hourAngle   = ((hours % 12) + minutes / 60 + smoothSec / 3600) * (Math.PI / 6);
+      const minuteAngle = (minutes + smoothSec / 60) * (Math.PI / 30);
+      const secondAngle = smoothSec * (Math.PI / 30);
+
+      // ── Outer ring ──
+      ctx.beginPath();
+      ctx.arc(CENTER, CENTER, RADIUS + 6, 0, Math.PI * 2);
+      ctx.strokeStyle = 'var(--glass-border)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // ── Ticks ──
+      const style = getComputedStyle(document.documentElement);
+      const tickColor      = style.getPropertyValue('--tick-color').trim();
+      const tickColorMajor = style.getPropertyValue('--tick-color-major').trim();
+
+      for (let i = 0; i < 60; i++) {
+        const angle = i * (Math.PI / 30);
+        const isMajor = i % 5 === 0;
+        const inner = isMajor ? RADIUS - 22 : RADIUS - 10;
+        const outer = RADIUS - 4;
+
+        ctx.beginPath();
+        ctx.moveTo(CENTER + Math.sin(angle) * inner, CENTER - Math.cos(angle) * inner);
+        ctx.lineTo(CENTER + Math.sin(angle) * outer, CENTER - Math.cos(angle) * outer);
+        ctx.strokeStyle = isMajor ? tickColorMajor : tickColor;
+        ctx.lineWidth = isMajor ? 2.5 : 1.2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      }
+
+      // ── Numbers (12, 3, 6, 9) ──
+      ctx.fillStyle = style.getPropertyValue('--text-primary').trim();
+      ctx.font = 'bold 22px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const nums = [
+        { v: 12, a: -Math.PI/2 }, { v: 3, a: 0 },
+        { v: 6, a: Math.PI/2 },  { v: 9, a: Math.PI }
+      ];
+      for (const n of nums) {
+        const x = CENTER + Math.cos(n.a) * (RADIUS - 32);
+        const y = CENTER + Math.sin(n.a) * (RADIUS - 32);
+        ctx.fillText(n.v, x, y);
+      }
+
+      // ── Hour hand ──
+      const hourLen = RADIUS * 0.5;
+      const hourWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(CENTER, CENTER);
+      ctx.lineTo(CENTER + Math.sin(hourAngle) * hourLen, CENTER - Math.cos(hourAngle) * hourLen);
+      ctx.strokeStyle = style.getPropertyValue('--hand-hour').trim();
+      ctx.lineWidth = hourWidth;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // ── Minute hand ──
+      const minLen = RADIUS * 0.68;
+      const minWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(CENTER, CENTER);
+      ctx.lineTo(CENTER + Math.sin(minuteAngle) * minLen, CENTER - Math.cos(minuteAngle) * minLen);
+      ctx.strokeStyle = style.getPropertyValue('--hand-minute').trim();
+      ctx.lineWidth = minWidth;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // ── Second hand ──
+      const secLen = RADIUS * 0.74;
+      ctx.beginPath();
+      ctx.moveTo(CENTER - Math.sin(secondAngle) * 18, CENTER + Math.cos(secondAngle) * 18);
+      ctx.lineTo(CENTER + Math.sin(secondAngle) * secLen, CENTER - Math.cos(secondAngle) * secLen);
+      ctx.strokeStyle = style.getPropertyValue('--hand-second').trim();
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // ── Center cap ──
+      const grad = ctx.createRadialGradient(CENTER, CENTER, 0, CENTER, CENTER, 10);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(1, style.getPropertyValue('--hand-second').trim());
+      ctx.beginPath();
+      ctx.arc(CENTER, CENTER, 5, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(CENTER, CENTER, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    }
+
+    // ─── Update digital ──────────────────────────────────────
+    function updateDigital(now) {
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+
+      digitalTime.innerHTML = `${h}:${m}<span class="seconds">:${s}</span>`;
+
+      const y = now.getFullYear();
+      const mo = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const w = WEEKDAYS[now.getDay()];
+      digitalDate.textContent = `${y}年${mo}月${d}日 ${w}`;
+
+      // bpm-style seconds
+      const sec = now.getSeconds();
+      if (sec !== lastSecond) {
+        lastSecond = sec;
+        secondPulse = !secondPulse;
+        const bpm = secondPulse ? '♡' : '♥';
+        infoSeconds.innerHTML = `脉搏 · ${bpm} ${60 - sec}bpm`;
+      }
+    }
+
+    // ─── Main loop ───────────────────────────────────────────
+    function tick(timestamp) {
+      const now = new Date();
+      const h = now.getHours();
+      const m = now.getMinutes();
+      const s = now.getSeconds();
+      const ms = now.getMilliseconds();
+
+      drawClock(h, m, s, ms);
+      updateDigital(now);
+
+      animFrame = requestAnimationFrame(tick);
+    }
+
+    // ─── Start ───────────────────────────────────────────────
+    animFrame = requestAnimationFrame(tick);
+
+    // ─── Cleanup ─────────────────────────────────────────────
+    window.addEventListener('beforeunload', () => {
+      if (animFrame) cancelAnimationFrame(animFrame);
+    });
+
+    // ─── Manual re-draw on theme change (re-evaluates CSS vars) ──
+    const origTheme = themeBtn.addEventListener;
+    const observer = new MutationObserver(() => {
+      // theme changed — redraw will happen on next frame anyway
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  })();
+</script>
+
+</body>
+</html>

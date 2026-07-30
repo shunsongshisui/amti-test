@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八仙人格测试 · 国漫风</title>
+<style>
+  /* 字体使用系统默认，确保国内可无阻碍访问 */
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #0a0a1a;
+    color: #e8e0d0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 背景星空 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,200,0.3), transparent),
+      radial-gradient(1px 1px at 30% 60%, rgba(255,255,200,0.2), transparent),
+      radial-gradient(1.5px 1.5px at 50% 10%, rgba(255,255,200,0.4), transparent),
+      radial-gradient(1px 1px at 70% 40%, rgba(255,255,200,0.2), transparent),
+      radial-gradient(1px 1px at 90% 80%, rgba(255,255,200,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 15% 85%, rgba(255,255,200,0.25), transparent),
+      radial-gradient(1px 1px at 45% 45%, rgba(255,255,200,0.15), transparent),
+      radial-gradient(1px 1px at 80% 15%, rgba(255,255,200,0.3), transparent),
+      radial-gradient(1.2px 1.2px at 60% 75%, rgba(255,255,200,0.2), transparent),
+      radial-gradient(1px 1px at 35% 90%, rgba(255,255,200,0.15), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 标题区 */
+  .hero {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+  .hero h1 {
+    font-family: 'PingFang SC', 'Microsoft YaHei', cursive;
+    font-size: 2.8em;
+    background: linear-gradient(135deg, #f6d365, #da8c5c, #e8b87a, #f6d365);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s ease-in-out infinite;
+    text-shadow: none;
+    letter-spacing: 4px;
+  }
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .hero p {
+    color: #a09080;
+    margin-top: 10px;
+    font-size: 1em;
+    letter-spacing: 2px;
+  }
+  .hero .subtitle {
+    display: inline-block;
+    background: rgba(255,215,150,0.08);
+    border: 1px solid rgba(255,215,150,0.15);
+    border-radius: 20px;
+    padding: 4px 18px;
+    font-size: 0.8em;
+    color: #c0a890;
+    margin-top: 8px;
+  }
+
+  /* 进度 */
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: #2a2a3a;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #f6d365, #da8c5c);
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .progress-text {
+    font-size: 0.8em;
+    color: #a09080;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  /* 题目卡片 */
+  .question-card {
+    background: linear-gradient(160deg, rgba(30,25,40,0.95), rgba(20,18,35,0.98));
+    border: 1px solid rgba(255,215,150,0.1);
+    border-radius: 20px;
+    padding: 40px 35px;
+    backdrop-filter: blur(10px);
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+  .question-card.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-size: 0.75em;
+    color: #da8c5c;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .q-title {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #f0e8d8;
+    line-height: 1.6;
+    margin-bottom: 25px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+
+  .option-btn {
+    display: block;
+    width: 100%;
+    padding: 16px 22px;
+    background: rgba(255,215,150,0.04);
+    border: 1px solid rgba(255,215,150,0.12);
+    border-radius: 14px;
+    color: #d0c8b8;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  .option-btn:hover {
+    background: rgba(255,215,150,0.1);
+    border-color: rgba(246,211,101,0.3);
+    transform: translateX(4px);
+    color: #f0e8d8;
+  }
+  .option-btn:active { transform: translateX(2px) scale(0.99); }
+
+  /* 结果页 */
+  .result-card {
+    display: none;
+    animation: fadeIn 0.7s ease;
+  }
+  .result-card.active { display: block; }
+
+  .result-header {
+    text-align: center;
+    padding: 20px 0 10px;
+  }
+  .result-header .label {
+    font-size: 0.8em;
+    color: #a09080;
+    letter-spacing: 3px;
+  }
+  .result-header .name {
+    font-family: 'PingFang SC', 'Microsoft YaHei', cursive;
+    font-size: 2.4em;
+    color: #f6d365;
+    margin: 6px 0;
+  }
+  .result-header .title-line {
+    color: #c0a890;
+    font-size: 1em;
+  }
+
+  /* SVG 简笔画容器 */
+  .art-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0 30px;
+  }
+  .art-container svg {
+    max-width: 260px;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(246,211,101,0.08));
+  }
+
+  .result-body {
+    background: rgba(255,215,150,0.03);
+    border: 1px solid rgba(255,215,150,0.08);
+    border-radius: 16px;
+    padding: 28px;
+    margin: 10px 0 20px;
+  }
+  .result-body h3 {
+    color: #f6d365;
+    font-size: 1em;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .result-body p {
+    color: #c8c0b0;
+    line-height: 1.8;
+    font-size: 0.95em;
+  }
+
+  .result-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .result-tags span {
+    display: inline-block;
+    padding: 4px 14px;
+    background: rgba(246,211,101,0.08);
+    border: 1px solid rgba(246,211,101,0.15);
+    border-radius: 20px;
+    font-size: 0.78em;
+    color: #e8c87a;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .btn-primary, .btn-secondary {
+    padding: 14px 32px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1em;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s ease;
+    flex: 1;
+    text-align: center;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #f6d365, #da8c5c);
+    color: #1a1a2a;
+    font-weight: 700;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(246,211,101,0.2);
+  }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(255,215,150,0.2);
+    color: #c0a890;
+  }
+  .btn-secondary:hover {
+    background: rgba(255,215,150,0.06);
+    border-color: rgba(255,215,150,0.3);
+  }
+
+  /* 角色回顾 */
+  .all-characters {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255,215,150,0.08);
+    display: none;
+  }
+  .all-characters.active { display: block; }
+  .all-characters h3 {
+    text-align: center;
+    color: #a09080;
+    font-size: 0.9em;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+  }
+  .char-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .char-mini {
+    text-align: center;
+    padding: 12px 6px;
+    border-radius: 12px;
+    background: rgba(255,215,150,0.03);
+    border: 1px solid rgba(255,215,150,0.06);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .char-mini:hover {
+    background: rgba(255,215,150,0.08);
+    border-color: rgba(255,215,150,0.15);
+  }
+  .char-mini svg {
+    width: 40px;
+    height: 40px;
+    display: block;
+    margin: 0 auto 6px;
+  }
+  .char-mini .cname {
+    font-size: 0.72em;
+    color: #b0a090;
+  }
+
+  /* 音效反馈 */
+  .option-btn.selected {
+    background: rgba(246,211,101,0.12);
+    border-color: rgba(246,211,101,0.3);
+    color: #f6d365;
+  }
+
+  @media (max-width: 560px) {
+    .hero h1 { font-size: 2em; }
+    .question-card { padding: 28px 20px; }
+    .q-title { font-size: 1.1em; }
+    .result-header .name { font-size: 1.8em; }
+    .char-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .btn-group { flex-direction: column; }
+    .art-container svg { max-width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="hero">
+    <h1>八 仙 人 格</h1>
+    <p>测一测 · 你是哪一位仙班同僚？</p>
+    <div class="subtitle">✦ 新国漫八仙角色人格测验 ✦</div>
+  </div>
+
+  <!-- 进度条 -->
+  <div class="progress-bar">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-text" id="progressText">0/7</span>
+  </div>
+
+  <!-- 题目区 -->
+  <div id="quizArea">
+
+    <!-- 每题用 JS 动态渲染，结构在下面 template 里 -->
+
+  </div>
+
+  <!-- 结果区 -->
+  <div class="result-card" id="resultCard">
+
+    <div class="result-header">
+      <div class="label">✦ 你的仙班身份 ✦</div>
+      <div class="name" id="resultName">—</div>
+      <div class="title-line" id="resultTitle">—</div>
+    </div>
+
+    <div class="art-container" id="resultArt"></div>
+
+    <div class="result-body">
+      <h3>▎ 仙 籍 档 案</h3>
+      <p id="resultDesc"></p>
+      <div class="result-tags" id="resultTags"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-primary" onclick="showAllCharacters()">✦ 查看全部八仙</button>
+      <button class="btn-secondary" onclick="restartQuiz()">↻ 重新测试</button>
+    </div>
+
+  </div>
+
+  <!-- 全部八仙回顾 -->
+  <div class="all-characters" id="allCharacters">
+    <h3>— 八 仙 全 图 鉴 —</h3>
+    <div class="char-grid" id="charGrid"></div>
+  </div>
+
+</div>
+
+<script>
+// ========== 八仙数据 ==========
+const IMMORTALS = [
+  {
+    id: 'tieguaili',
+    name: '铁拐李',
+    title: '「铁骨丹心 · 隐世真仙」',
+    desc: '你外表看似粗犷不羁，实则内心坚韧、重情重义。你经历过人生的至暗时刻，却从废墟中站起，带着一身风骨和一把铁拐，走得比任何人都稳。你不屑于表面的光鲜，只信奉真正的实力。在团队中你是那个默默扛下一切的人——话不多，但靠得住。',
+    tags: ['坚韧隐忍', '重情重义', '外粗内秀', '铁骨柔情'],
+    scores: { A: 5, B: 0, C: 1, D: 0 }
+  },
+  {
+    id: 'hanzhongli',
+    name: '汉钟离',
+    title: '「大肚能容 · 逍遥散仙」',
+    desc: '你天生豁达开朗，是大伙儿眼中的乐天派和主心骨。你肚量宽广，从不为小事计较，笑起来声如洪钟，走到哪里就把热闹带到哪里。你的人生哲学是"放下即自在"——不是逃避，而是真正看透了生活之后的从容。和你相处过的人，都会被你那份松弛感治愈。',
+    tags: ['豁达豪放', '乐天知命', '领袖气质', '洒脱不羁'],
+    scores: { B: 5, A: 0, C: 0, D: 1 }
+  },
+  {
+    id: 'zhangguolao',
+    name: '张果老',
+    title: '「倒骑青驴 · 洞见真知」',
+    desc: '你沉稳内敛，是个大智若愚的观察者。你习惯倒着看世界——当所有人都在向前冲时，你偏要回头看看已经走过的路。你的智慧不是书本里背出来的，而是在漫长岁月里一点一滴熬出来的。你话很少，但每句都值得记下来。你是那种"和他聊一次比读十本书还有收获"的人。',
+    tags: ['大智若愚', '沉稳睿智', '通透豁达', '智者风范'],
+    scores: { C: 5, D: 0, A: 1, B: 0 }
+  },
+  {
+    id: 'lyudongbin',
+    name: '吕洞宾',
+    title: '「剑胆琴心 · 风流剑仙」',
+    desc: '你才华横溢、风度翩翩，自带一股不羁的侠气。你有理想主义的热血，也有脚踏实地的行动力——既能提剑斩不平，也能抚琴诉衷肠。你追求自由，不愿被规则束缚，却从不逃避责任。你的人生是一场快意恩仇的江湖行，潇洒背后是一颗赤诚滚烫的心。',
+    tags: ['风流潇洒', '才华横溢', '侠义心肠', '理想主义'],
+    scores: { D: 5, A: 0, B: 1, C: 0 }
+  },
+  {
+    id: 'hexiangu',
+    name: '何仙姑',
+    title: '「凌波微步 · 清灵仙姿」',
+    desc: '你温柔而坚定，善良却有锋芒。你像一朵出水芙蓉，清新脱俗却不疏离——你懂世间冷暖，却依然选择温柔待人。你有着敏锐的直觉和细腻的感知力，总能第一时间觉察到身边人的情绪。但你绝不是软弱的，在关键时刻你比谁都果决，荷花瓣是你的法器，柔中带刚。',
+    tags: ['温柔坚定', '善良敏锐', '清丽脱俗', '柔中带刚'],
+    scores: { A: 3, B: 3, D: 0, C: 0 }
+  },
+  {
+    id: 'lancaihe',
+    name: '蓝采和',
+    title: '「少年意气 · 自在飞仙」',
+    desc: '你永远保持着一颗少年心，活泼灵动、古灵精怪。你的世界里没有条条框框，只有"好玩"和"不好玩"。你手里好像永远提着一盏花灯，走到哪里就把光亮和笑声带到哪里。别以为你只是爱玩——你的创造力惊人，总能用最意想不到的方式解决最棘手的问题。',
+    tags: ['活泼灵动', '创意无限', '少年感', '乐观开朗'],
+    scores: { B: 3, D: 3, A: 0, C: 0 }
+  },
+  {
+    id: 'hanxiangzi',
+    name: '韩湘子',
+    title: 「「玉笛飞声 · 文艺仙君」」,
+    desc: '你骨子里是个浪漫的文艺青年。你热爱一切美的事物——音乐、诗歌、夕阳、落雪。你的情感丰富而深沉，一支笛子就能吹出万千世界。你不善言辞，却擅长用作品表达内心。你看起来有些清冷疏离，但那是因为你内心太丰富了，普通人跟不上你的频道。懂你的人，会爱惨了你。',
+    tags: ['儒雅文艺', '情感细腻', '才华出众', '气质清冷'],
+    scores: { C: 3, D: 2, A: 0, B: 1 }
+  },
+  {
+    id: 'caoguojiu',
+    name: '曹国舅',
+    title: '「持笏正身 · 浩然仙卿」',
+    desc: '你一身正气、刚正不阿，是天生的规则守护者。你深信"没有规矩不成方圆"，但你的严肃外表下藏着一颗温暖的心——你只是不擅长表达柔软的一面。你做事有板有眼、言出必行，是所有人最信赖的依靠。世间的纷扰改变不了你的原则，你就像一块磐石，在激流中岿然不动。',
+    tags: ['正直庄重', '原则性强', '可靠稳重', '浩然正气'],
+    scores: { A: 2, C: 2, D: 1, B: 0 }
+  }
+];
+
+// ========== 题目数据 ==========
+const QUESTIONS = [
+  {
+    q: '你周末最理想的度过方式是？',
+    options: [
+      { text: '一个人待着，做点手工或看部老电影', key: 'A' },
+      { text: '约一群朋友喝酒聊天，畅谈到深夜', key: 'B' },
+      { text: '去公园散步、喝茶，观察路过的行人', key: 'C' },
+      { text: '去尝试一项没玩过的运动或去个新地方', key: 'D' }
+    ]
+  },
+  {
+    q: '朋友遇到困难时，你通常会？',
+    options: [
+      { text: '什么也不说，默默帮他把事情处理好', key: 'A' },
+      { text: '用你的乐观感染他，带他吃顿好的先', key: 'B' },
+      { text: '给他最理性的分析，帮他理清思路', key: 'C' },
+      { text: '拍胸脯说"这事包在我身上"', key: 'D' }
+    ]
+  },
+  {
+    q: '以下哪种评价最常出现在你身上？',
+    options: [
+      { text: '表面看着大大咧咧，其实心特别细', key: 'A' },
+      { text: '跟他在一起特别轻松，从不内耗', key: 'B' },
+      { text: '想得通透，说的话很有道理', key: 'C' },
+      { text: '这人真有意思，一身的故事', key: 'D' }
+    ]
+  },
+  {
+    q: '面对人生重大选择时，你的风格是？',
+    options: [
+      { text: '选最难的那条路——因为扛得住', key: 'A' },
+      { text: '随心而定，船到桥头自然直', key: 'B' },
+      { text: '先把所有利弊列清楚，再决定', key: 'C' },
+      { text: '听从内心的冲动，错了也不后悔', key: 'D' }
+    ]
+  },
+  {
+    q: '你觉得自己更像哪种动物？',
+    options: [
+      { text: '老牛——踏实、沉默、有力量', key: 'A' },
+      { text: '熊猫——看着憨，活得自在', key: 'B' },
+      { text: '猫头鹰——看得远、想得深', key: 'C' },
+      { text: '仙鹤——优雅、自由、不合群', key: 'D' }
+    ]
+  },
+  {
+    q: '你身上最突出的特质是什么？',
+    options: [
+      { text: '韧性——倒了还能爬起来', key: 'A' },
+      { text: '豁达——天塌了当被盖', key: 'B' },
+      { text: '通透——看事情一针见血', key: 'C' },
+      { text: '灵气——做什么都有自己的风格', key: 'D' }
+    ]
+  },
+  {
+    q: '你希望别人用哪句话记住你？',
+    options: [
+      { text: '"他是个真正靠得住的人"', key: 'A' },
+      { text: '"跟他一起真开心"', key: 'B' },
+      { text: '"他的话让我想通了很多事"', key: 'C' },
+      { text: '"他活成了我想要的样子"', key: 'D' }
+    ]
+  }
+];
+
+let currentQ = 0;
+let scores = { A: 0, B: 0, C: 0, D: 0 };
+
+// ========== SVG 简笔画 ==========
+function getArt(id) {
+  const arts = {
+    tieguaili: `<svg viewBox="0 0 160 200" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 铁拐李：拄拐杖的汉子 -->
+      <circle cx="80" cy="30" r="18" stroke-width="2.5"/>
+      <!-- 乱发 -->
+      <path d="M62 25 Q60 15 68 10 M98 25 Q100 15 92 10" stroke-width="1.5"/>
+      <path d="M65 22 Q70 12 80 12 Q90 12 95 22" stroke-width="1"/>
+      <!-- 胡须 -->
+      <path d="M68 38 Q80 52 92 38" stroke-width="1.5"/>
+      <path d="M70 42 Q80 56 90 42" stroke-width="1"/>
+      <!-- 身体（宽大袍子） -->
+      <path d="M58 48 L52 130 Q50 150 60 158 L100 158 Q110 150 108 130 L102 48" stroke-width="2"/>
+      <!-- 腰带 -->
+      <line x1="58" y1="90" x2="102" y2="90" stroke-width="2.5"/>
+      <!-- 左腿 -->
+      <path d="M65 158 L55 190" stroke-width="2"/>
+      <!-- 右腿（瘸腿） -->
+      <path d="M85 158 L80 175" stroke-width="2"/>
+      <!-- 拐杖 -->
+      <line x1="95" y1="48" x2="105" y2="185" stroke-width="3"/>
+      <path d="M100 180 Q108 185 105 190" stroke-width="2"/>
+      <!-- 左手扶杖 -->
+      <circle cx="97" cy="65" r="4" stroke-width="1.5"/>
+      <!-- 右手拿葫芦 -->
+      <path d="M58 65 L40 60 Q35 55 38 48 Q42 42 50 45 L58 55" stroke-width="2"/>
+      <!-- 葫芦 -->
+      <circle cx="42" cy="52" r="12" stroke-width="1.5"/>
+      <ellipse cx="42" cy="42" rx="5" ry="3" stroke-width="1"/>
+    </svg>`,
+
+    hanzhongli: `<svg viewBox="0 0 160 200" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 汉钟离：大肚腩的豪爽仙人 -->
+      <circle cx="80" cy="26" r="17" stroke-width="2.5"/>
+      <!-- 双髻发型 -->
+      <circle cx="69" cy="12" r="6" stroke-width="1.5"/>
+      <circle cx="91" cy="12" r="6" stroke-width="1.5"/>
+      <path d="M63 12 Q69 5 75 12 M85 12 Q91 5 97 12" stroke-width="1"/>
+      <!-- 大耳朵 -->
+      <ellipse cx="59" cy="26" rx="6" ry="9" stroke-width="1.5"/>
+      <ellipse cx="101" cy="26" rx="6" ry="9" stroke-width="1.5"/>
+      <!-- 袒胸大肚 -->
+      <path d="M55 42 L48 80 Q46 100 55 110 L105 110 Q114 100 112 80 L105 42" stroke-width="2"/>
+      <!-- 大肚子弧线 -->
+      <path d="M55 80 Q80 120 105 80" stroke-width="2.5"/>
+      <!-- 腰带 -->
+      <line x1="55" y1="65" x2="105" y2="65" stroke-width="2"/>
+      <!-- 双腿 -->
+      <path d="M60 110 L52 185" stroke-width="2"/>
+      <path d="M100 110 L108 185" stroke-width="2"/>
+      <!-- 赤脚 -->
+      <ellipse cx="52" cy="186" rx="8" ry="4" stroke-width="1.5"/>
+      <ellipse cx="108" cy="186" rx="8" ry="4" stroke-width="1.5"/>
+      <!-- 芭蕉扇 -->
+      <path d="M108 45 L135 35 Q140 30 138 40 L125 65 Q120 72 112 68 Z" stroke-width="2"/>
+      <line x1="125" y1="65" x2="128" y2="75" stroke-width="1.5"/>
+    </svg>`,
+
+    zhangguolao: `<svg viewBox="0 0 160 200" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 张果老：倒骑驴的老者 -->
+      <!-- 老人头部 -->
+      <circle cx="80" cy="28" r="16" stroke-width="2.5"/>
+      <!-- 发髻 -->
+      <circle cx="80" cy="12" r="5" stroke-width="1.5"/>
+      <!-- 白眉（长眉） -->
+      <path d="M62 26 Q62 35 58 38 M98 26 Q98 35 102 38" stroke-width="2"/>
+      <!-- 长胡须 -->
+      <path d="M68 36 Q80 60 92 36" stroke-width="1.5"/>
+      <path d="M70 40 Q80 65 90 40" stroke-width="1"/>
+      <path d="M72 44 Q80 70 88 44" stroke-width="1"/>
+      <!-- 道袍 -->
+      <path d="M60 44 L55 100 Q54 115 62 120 L98 120 Q106 115 105 100 L100 44" stroke-width="2"/>
+      <!-- 腰带 -->
+      <line x1="60" y1="75" x2="100" y2="75" stroke-width="2"/>
+      <!-- 双腿 -->
+      <path d="M66 120 L58 170" stroke-width="2"/>
+      <path d="M94 120 L102 170" stroke-width="2"/>
+      <!-- 倒骑：脸朝右，身体朝左 -->
+      <!-- 驴身 -->
+      <path d="M40 170 Q30 160 32 150 L38 140 L122 140 L128 150 Q130 160 120 170 Z" stroke-width="2"/>
+      <!-- 驴头（向左） -->
+      <path d="M38 140 L20 130 Q12 125 15 118 L22 115 L38 125" stroke-width="2"/>
+      <!-- 驴耳 -->
+      <ellipse cx="22" cy="112" rx="3" ry="8" stroke-width="1.5" transform="rotate(-20 22 112)"/>
+      <ellipse cx="28" cy="110" rx="3" ry="7" stroke-width="1.5" transform="rotate(-10 28 110)"/>
+      <!-- 驴尾 -->
+      <path d="M122 150 Q140 145 138 160" stroke-width="1.5"/>
+      <!-- 驴腿 -->
+      <line x1="50" y1="170" x2="48" y2="195" stroke-width="2"/>
+      <line x1="70" y1="170" x2="68" y2="195" stroke-width="2"/>
+      <line x1="95" y1="170" x2="97" y2="195" stroke-width="2"/>
+      <line x1="115" y1="170" x2="117" y2="195" stroke-width="2"/>
+    </svg>`,
+
+    lyudongbin: `<svg viewBox="0 0 160 200" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 吕洞宾：佩剑的潇洒书生 -->
+      <circle cx="80" cy="28" r="17" stroke-width="2.5"/>
+      <!-- 书生巾 -->
+      <path d="M62 20 Q70 6 90 6 Q98 20 98 20 L62 20" stroke-width="2"/>
+      <path d="M68 6 Q80 0 92 6" stroke-width="1.5"/>
+      <!-- 披发 -->
+      <path d="M62 28 Q55 35 52 30" stroke-width="1.5"/>
+      <path d="M98 28 Q105 35 108 30" stroke-width="1.5"/>
+      <!-- 长剑在背 -->
+      <line x1="114" y1="85" x2="140" y2="195" stroke-width="3"/>
+      <!-- 剑柄 -->
+      <rect x="110" y="75" width="8" height="16" rx="2" stroke-width="1.5"/>
+      <circle cx="114" cy="73" r="3" stroke-width="1"/>
+      <!-- 长袍 -->
+      <path d="M60 44 L52 110 Q50 130 60 140 L100 140 Q110 130 108 110 L100 44" stroke-width="2"/>
+      <!-- 衣领交衽 -->
+      <path d="M70 44 L80 60 L90 44" stroke-width="1.5"/>
+      <!-- 腰带 + 飘带 -->
+      <line x1="60" y1="80" x2="100" y2="80" stroke-width="2"/>
+      <path d="M62 80 L50 90 M98 80 L110 90" stroke-width="1.5"/>
+      <!-- 衣袖飘逸 -->
+      <path d="M60 55 L42 65 M100 55 L118 65" stroke-width="1.5"/>
+      <!-- 双腿 -->
+      <path d="M65 140 L58 185" stroke-width="2"/>
+      <path d="M95 140 L102 185" stroke-width="2"/>
+    </svg>`,
+
+    hexiangu: `<svg viewBox="0 0 160 200" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 何仙姑：手持荷花的仙子 -->
+      <circle cx="80" cy="30" r="16" stroke-width="2.5"/>
+      <!-- 发髻 + 装饰 -->
+      <circle cx="80" cy="14" r="5" stroke-width="1.5"/>
+      <circle cx="80" cy="12" r="2" stroke-width="1" fill="#e8c87a" fill-opacity="0.3"/>
+      <!-- 长发 -->
+      <path d="M64 30 Q58 40 54 60" stroke-width="1.5"/>
+      <path d="M96 30 Q102 40 106 60" stroke-width="1.5"/>
+      <!-- 衣裙 -->
+      <path d="M60 46 L52 100 Q50 120 56 135 L104 135 Q110 120 108 100 L100 46" stroke-width="2"/>
+      <!-- 飘带 -->
+      <path d="M56 65 L38 75 M104 65 L122 75" stroke-width="1.5"/>
+      <path d="M38 75 Q30 82 36 90 M122 75 Q130 82 124 90" stroke-width="1"/>
+      <!-- 腰饰 -->
+      <line x1="60" y1="82" x2="100" y2="82" stroke-width="1.5"/>
+      <!-- 双腿（裙下） -->
+      <path d="M66 135 L60 180" stroke-width="1.5"/>
+      <path d="M94 135 L100 180" stroke-width="1.5"/>
+      <!-- 荷花 -->
+      <path d="M115 50 Q130 42 135 55 Q140 42 155 50" stroke-width="2"/>
+      <path d="M125 52 L128 68" stroke-width="1.5"/>
+      <ellipse cx="135" cy="52" rx="5" ry="3" stroke-width="1" transform="rotate(-10 135 52)"/>
+      <ellipse cx="125" cy="50" rx="4" ry="3" stroke-width="1" transform="rotate(20 125 50)"/>
+      <ellipse cx="145" cy="50" rx="4" ry="3" stroke-width="1" transform="rotate(-20 145 50)"/>
+    </svg>`,
+
+    lancaihe: `<svg viewBox="0 0 160 200" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 蓝采和：提花灯的少年 -->
+      <circle cx="80" cy="28" r="16" stroke-width="2.5"/>
+      <!-- 少年短发 -->
+      <path d="M64 20 Q70 10 80 8 Q90 10 96 20" stroke-width="2"/>
+      <path d="M68 16 Q68 8 72 6 M92 16 Q92 8 88 6" stroke-width="1"/>
+      <!-- 笑脸 -->
+      <path d="M72 32 Q80 40 88 32" stroke-width="1.5"/>
+      <!-- 短打装扮 -->
+      <path d="M60 44 L55 100 Q54 115 60 125 L100 125 Q106 115 105 100 L100 44" stroke-width="2"/>
+      <!-- 腰带 -->
+      <line x1="60" y1="75" x2="100" y2="75" stroke-width="2"/>
+      <!-- 飘带飞舞 -->
+      <path d="M58 60 Q40 55 35 70 Q30 85 45 80" stroke-width="2"/>
+      <path d="M102 60 Q120 55 125 70 Q130 85 115 80" stroke-width="2"/>
+      <!-- 双腿 -->
+      <path d="M65 125 L58 185" stroke-width="2"/>
+      <path d="M95 125 L102 185" stroke-width="2"/>
+      <!-- 靴子 -->
+      <path d="M54 180 L58 185 L65 180" stroke-width="1.5"/>
+      <path d="M98 180 L102 185 L109 180" stroke-width="1.5"/>
+      <!-- 花灯 -->
+      <rect x="110" y="42" width="20" height="28" rx="3" stroke-width="2"/>
+      <line x1="120" y1="42" x2="120" y2="32" stroke-width="1.5"/>
+      <path d="M112 50 L128 50 M112 56 L128 56 M112 62 L128 62" stroke-width="1"/>
+      <!-- 花灯穗 -->
+      <path d="M115 70 L112 78 M120 70 L120 78 M125 70 L128 78" stroke-width="1"/>
+    </svg>`,
+
+    hanxiangzi: `<svg viewBox="0 0 160 200" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 韩湘子：吹笛的翩翩公子 -->
+      <circle cx="80" cy="28" r="16" stroke-width="2.5"/>
+      <!-- 儒生冠 -->
+      <path d="M64 18 Q72 8 80 6 Q88 8 96 18" stroke-width="2"/>
+      <rect x="70" y="6" width="20" height="4" rx="2" stroke-width="1"/>
+      <!-- 长发 -->
+      <path d="M64 28 Q56 38 52 55" stroke-width="1.5"/>
+      <path d="M96 28 Q104 38 108 55" stroke-width="1.5"/>
+      <!-- 长袍 -->
+      <path d="M60 44 L52 110 Q50 130 60 140 L100 140 Q110 130 108 110 L100 44" stroke-width="2"/>
+      <!-- 衣领 -->
+      <path d="M70 44 L80 56 L90 44" stroke-width="1.5"/>
+      <!-- 腰带 -->
+      <line x1="60" y1="82" x2="100" y2="82" stroke-width="2"/>
+      <!-- 吹笛姿势 -->
+      <path d="M100 55 L116 48" stroke-width="1.5"/>
+      <!-- 横笛 -->
+      <line x1="52" y1="60" x2="110" y2="42" stroke-width="3"/>
+      <!-- 笛孔 -->
+      <circle cx="70" cy="55" r="1.5" stroke-width="1"/>
+      <circle cx="80" cy="52" r="1.5" stroke-width="1"/>
+      <circle cx="90" cy="49" r="1.5" stroke-width="1"/>
+      <circle cx="100" cy="46" r="1.5" stroke-width="1"/>
+      <!-- 笛穗 -->
+      <path d="M52 60 L46 68 M46 68 Q42 72 46 76" stroke-width="1"/>
+      <!-- 衣袖 -->
+      <path d="M60 48 L44 58 M100 48 L112 55" stroke-width="1.5"/>
+      <!-- 双腿 -->
+      <path d="M65 140 L58 185" stroke-width="2"/>
+      <path d="M95 140 L102 185" stroke-width="2"/>
+    </svg>`,
+
+    caoguojiu: `<svg viewBox="0 0 160 200" fill="none" stroke="#e8c87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- 曹国舅：持玉笏的庄重官员 -->
+      <circle cx="80" cy="28" r="16" stroke-width="2.5"/>
+      <!-- 官帽（展脚幞头） -->
+      <path d="M62 18 Q70 6 80 4 Q90 6 98 18" stroke-width="2"/>
+      <line x1="62" y1="18" x2="46" y2="14" stroke-width="2"/>
+      <line x1="98" y1="18" x2="114" y2="14" stroke-width="2"/>
+      <ellipse cx="46" cy="14" rx="4" ry="3" stroke-width="1.5"/>
+      <ellipse cx="114" cy="14" rx="4" ry="3" stroke-width="1.5"/>
+      <!-- 官服 -->
+      <path d="M60 44 L52 120 Q50 140 60 150 L100 150 Q110 140 108 120 L100 44" stroke-width="2"/>
+      <!-- 圆领 -->
+      <ellipse cx="80" cy="45" rx="14" ry="4" stroke-width="1.5"/>
+      <!-- 玉笏（朝板） -->
+      <rect x="88" y="52" width="8" height="42" rx="2" stroke-width="2"/>
+      <path d="M88 52 L84 48 L92 48" stroke-width="1.5"/>
+      <!-- 腰带 / 玉带 -->
+      <line x1="60" y1="88" x2="100" y2="88" stroke-width="2"/>
+      <rect x="76" y="84" width="8" height="8" rx="2" stroke-width="1.5"/>
+      <!-- 衣袖 -->
+      <path d="M60 52 L44 64 M100 52 L112 60" stroke-width="1.5"/>
+      <!-- 双腿 -->
+      <path d="M65 150 L58 190" stroke-width="2"/>
+      <path d="M95 150 L102 190" stroke-width="2"/>
+      <!-- 靴子 -->
+      <path d="M54 185 L58 190 L68 187" stroke-width="1.5"/>
+      <path d="M98 185 L102 190 L112 187" stroke-width="1.5"/>
+    </svg>`
+  };
+  return arts[id] || '';
+}
+
+// ========== 渲染题目 ==========
+function renderQuestion(index) {
+  const q = QUESTIONS[index];
+  const total = QUESTIONS.length;
+  const percent = Math.round((index / total) * 100);
+
+  document.getElementById('progressFill').style.width = percent + '%';
+  document.getElementById('progressText').textContent = `${index}/${total}`;
+
+  const area = document.getElementById('quizArea');
+  area.innerHTML = `
+    <div class="question-card active">
+      <div class="q-number">第 ${index + 1} 题 / 共 ${total} 题</div>
+      <div class="q-title">${q.q}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <button class="option-btn" onclick="selectOption('${opt.key}', this)">
+            ${opt.text}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ========== 选择选项 ==========
+function selectOption(key, btn) {
+  // 视觉反馈
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  // 计分
+  scores[key]++;
+
+  // 延迟进入下一题
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < QUESTIONS.length) {
+      renderQuestion(currentQ);
+    } else {
+      showResult();
+    }
+  }, 300);
+}
+
+// ========== 计算结果 ==========
+function calculateResult() {
+  let bestMatch = null;
+  let bestScore = -1;
+
+  for (const im of IMMORTALS) {
+    let score = 0;
+    for (const k in scores) {
+      score += (im.scores[k] || 0) * scores[k];
+    }
+    // 加上与题目数量的相关性
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = im;
+    }
+  }
+
+  return bestMatch || IMMORTALS[0];
+}
+
+// ========== 显示结果 ==========
+function showResult() {
+  const result = calculateResult();
+
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressText').textContent = '✨';
+
+  const card = document.getElementById('resultCard');
+  card.classList.add('active');
+
+  document.getElementById('resultName').textContent = result.name;
+  document.getElementById('resultTitle').textContent = result.title;
+  document.getElementById('resultArt').innerHTML = getArt(result.id);
+  document.getElementById('resultDesc').textContent = result.desc;
+  document.getElementById('resultTags').innerHTML = result.tags.map(t => `<span>${t}</span>`).join('');
+
+  // 滚动到结果
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 200);
+}
+
+// ========== 全部八仙 ==========
+function showAllCharacters() {
+  const el = document.getElementById('allCharacters');
+  el.classList.toggle('active');
+
+  const grid = document.getElementById('charGrid');
+  if (grid.children.length === 0) {
+    grid.innerHTML = IMMORTALS.map(im => `
+      <div class="char-mini" onclick="showCharacter('${im.id}')">
+        ${getArt(im.id)}
+        <div class="cname">${im.name}</div>
+      </div>
+    `).join('');
+  }
+
+  if (el.classList.contains('active')) {
+    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+}
+
+function showCharacter(id) {
+  const im = IMMORTALS.find(i => i.id === id);
+  if (!im) return;
+  document.getElementById('resultName').textContent = im.name;
+  document.getElementById('resultTitle').textContent = im.title;
+  document.getElementById('resultArt').innerHTML = getArt(im.id);
+  document.getElementById('resultDesc').textContent = im.desc;
+  document.getElementById('resultTags').innerHTML = im.tags.map(t => `<span>${t}</span>`).join('');
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ========== 重新测试 ==========
+function restartQuiz() {
+  currentQ = 0;
+  scores = { A: 0, B: 0, C: 0, D: 0 };
+
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultCard').classList.remove('active');
+  document.getElementById('allCharacters').classList.remove('active');
+
+  renderQuestion(0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ========== 启动 ==========
+renderQuestion(0);
+</script>
+
+</body>
+</html>

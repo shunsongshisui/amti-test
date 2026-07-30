@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>记录簿 · Notebook</title>
+<style>
+  /* 字体使用系统默认 */
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-1: #0f0c29;
+    --bg-2: #302b63;
+    --bg-3: #24243e;
+    --glass: rgba(255,255,255,0.05);
+    --glass-solid: rgba(255,255,255,0.07);
+    --glass-border: rgba(255,255,255,0.09);
+    --glass-border-hover: rgba(255,255,255,0.16);
+    --glass-shadow: rgba(0,0,0,0.3);
+    --text: #ffffff;
+    --text-secondary: rgba(255,255,255,0.7);
+    --text-muted: rgba(255,255,255,0.38);
+    --accent: #8b5cf6;
+    --accent-glow: rgba(139,92,246,0.30);
+    --accent-soft: rgba(139,92,246,0.12);
+    --accent2: #f472b6;
+    --accent3: #06b6d4;
+    --danger: #ef4444;
+    --success: #34d399;
+    --warn: #fbbf24;
+    --card-bg: rgba(255,255,255,0.03);
+    --scrollbar: rgba(255,255,255,0.08);
+    --scrollbar-hover: rgba(255,255,255,0.15);
+    --entry-hover: rgba(255,255,255,0.05);
+    --entry-active: rgba(139,92,246,0.10);
+    --toolbar-bg: rgba(255,255,255,0.03);
+    --divider: rgba(255,255,255,0.06);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,0.4);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-theme="light"] {
+    --bg-1: #f3eeff;
+    --bg-2: #faf7ff;
+    --bg-3: #ffffff;
+    --glass: rgba(255,255,255,0.6);
+    --glass-solid: rgba(255,255,255,0.5);
+    --glass-border: rgba(139,92,246,0.10);
+    --glass-border-hover: rgba(139,92,246,0.20);
+    --glass-shadow: rgba(139,92,246,0.05);
+    --text: #1c1a2e;
+    --text-secondary: rgba(28,26,46,0.65);
+    --text-muted: rgba(28,26,46,0.32);
+    --card-bg: rgba(255,255,255,0.5);
+    --scrollbar: rgba(139,92,246,0.10);
+    --scrollbar-hover: rgba(139,92,246,0.20);
+    --entry-hover: rgba(139,92,246,0.04);
+    --entry-active: rgba(139,92,246,0.08);
+    --toolbar-bg: rgba(255,255,255,0.5);
+    --divider: rgba(139,92,246,0.08);
+    --shadow-lg: 0 20px 60px rgba(139,92,246,0.08);
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+    color: var(--text);
+    transition: background var(--transition);
+  }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+
+  /* ─── Orbs ─── */
+  .orb { position: fixed; border-radius: 50%; filter: blur(90px); opacity: 0.18; pointer-events: none; z-index: 0; }
+  .orb:nth-child(1) { width: 500px; height: 500px; background: #8b5cf6; top: -12%; left: -8%; }
+  .orb:nth-child(2) { width: 420px; height: 420px; background: #f472b6; bottom: -10%; right: -6%; }
+  .orb:nth-child(3) { width: 360px; height: 360px; background: #06b6d4; top: 40%; left: 55%; }
+
+  /* ─── Layout ─── */
+  .app { position: relative; z-index: 1; display: flex; height: 100vh; padding: 12px; gap: 12px; }
+
+  /* ─── Sidebar ─── */
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--glass); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 20px 14px;
+    display: flex; flex-direction: column;
+    gap: 6px;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 6px 14px; border-bottom: 1px solid var(--divider);
+    margin-bottom: 6px;
+  }
+  .sidebar-logo {
+    font-size: 18px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-logo span { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+  .sidebar-action {
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 18px; padding: 4px;
+    transition: color 0.2s;
+  }
+  .sidebar-action:hover { color: var(--text); }
+
+  .notebook-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .notebook-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: var(--radius-md);
+    cursor: pointer; transition: all 0.2s;
+    color: var(--text-secondary); font-size: 14px; font-weight: 500;
+    border: 1px solid transparent;
+    position: relative;
+  }
+  .notebook-item:hover { background: var(--entry-hover); color: var(--text); }
+  .notebook-item.active {
+    background: var(--accent-soft); color: var(--accent);
+    border-color: var(--accent-glow);
+  }
+  .notebook-item .icon { font-size: 16px; }
+  .notebook-item .count {
+    margin-left: auto; font-size: 12px; color: var(--text-muted);
+    background: var(--glass-solid); padding: 1px 8px; border-radius: 12px;
+  }
+  .notebook-item .del-notebook {
+    position: absolute; right: 6px; opacity: 0;
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 14px; padding: 2px; transition: all 0.2s;
+  }
+  .notebook-item:hover .del-notebook { opacity: 1; }
+  .notebook-item .del-notebook:hover { color: var(--danger); }
+
+  .sidebar-footer {
+    border-top: 1px solid var(--divider); padding-top: 12px;
+    display: flex; gap: 6px;
+  }
+  .sidebar-footer .icon-btn {
+    flex: 1; padding: 8px; border-radius: var(--radius-md);
+    background: var(--glass-solid); border: 1px solid var(--glass-border);
+    color: var(--text-muted); cursor: pointer; font-size: 14px;
+    transition: all 0.2s; text-align: center;
+  }
+  .sidebar-footer .icon-btn:hover { color: var(--text); background: var(--entry-hover); }
+
+  /* ─── Main Panel ─── */
+  .main {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  /* ─── Top Bar ─── */
+  .topbar {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--glass); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 10px 16px;
+    box-shadow: var(--shadow-lg);
+  }
+  .search-wrap {
+    flex: 1; display: flex; align-items: center; gap: 8px;
+    background: var(--glass-solid); border-radius: var(--radius-md);
+    padding: 0 14px; border: 1px solid transparent;
+    transition: border 0.3s;
+  }
+  .search-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow); }
+  .search-wrap span { color: var(--text-muted); font-size: 14px; }
+  .search-wrap input {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text); font-size: 14px; font-family: inherit;
+    padding: 9px 0;
+  }
+  .search-wrap input::placeholder { color: var(--text-muted); }
+
+  .topbar-actions { display: flex; gap: 6px; }
+  .topbar-actions button {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    background: var(--glass-solid); border: 1px solid var(--glass-border);
+    color: var(--text-muted); cursor: pointer; font-size: 15px;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  }
+  .topbar-actions button:hover { color: var(--text); background: var(--entry-hover); }
+
+  /* ─── Content Area ─── */
+  .content {
+    flex: 1; min-height: 0;
+    display: flex; gap: 12px;
+  }
+
+  /* ─── Entry List ─── */
+  .entry-list {
+    width: 280px; flex-shrink: 0;
+    background: var(--glass); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 16px 10px;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+  .entry-list-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 6px 12px; border-bottom: 1px solid var(--divider);
+    margin-bottom: 8px;
+  }
+  .entry-list-header h3 { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+  .entry-list-header span { font-size: 12px; color: var(--text-muted); }
+
+  .entry-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .entry-card {
+    padding: 12px 14px; border-radius: var(--radius-md);
+    cursor: pointer; transition: all 0.2s;
+    border: 1px solid transparent; position: relative;
+  }
+  .entry-card:hover { background: var(--entry-hover); }
+  .entry-card.active { background: var(--entry-active); border-color: var(--accent-glow); }
+  .entry-card .ec-title {
+    font-size: 14px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+  .entry-card .ec-preview {
+    font-size: 12px; color: var(--text-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .entry-card .ec-meta {
+    display: flex; align-items: center; gap: 8px; margin-top: 6px;
+  }
+  .entry-card .ec-date {
+    font-size: 11px; color: var(--text-muted);
+  }
+  .entry-card .ec-tag {
+    font-size: 10px; padding: 1px 6px; border-radius: 6px;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .entry-card .pin-badge { font-size: 11px; }
+
+  .empty-entries {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    flex: 1; color: var(--text-muted); font-size: 14px; text-align: center; gap: 8px;
+    padding: 20px;
+  }
+  .empty-entries .big-icon { font-size: 36px; opacity: 0.5; }
+
+  /* ─── Editor ─── */
+  .editor-panel {
+    flex: 1; min-width: 0;
+    background: var(--glass); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 24px 28px;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .editor-toolbar {
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    padding-bottom: 14px; border-bottom: 1px solid var(--divider);
+    margin-bottom: 16px;
+  }
+  .editor-toolbar .tool-group { display: flex; gap: 2px; margin-right: 6px; }
+  .editor-toolbar .tool-divider { width: 1px; height: 24px; background: var(--divider); margin: 0 6px; }
+  .editor-toolbar button {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 14px;
+    transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+  }
+  .editor-toolbar button:hover { background: var(--entry-hover); color: var(--text); }
+  .editor-toolbar button.active { background: var(--accent-soft); color: var(--accent); }
+
+  .editor-date-bar {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    font-size: 13px; color: var(--text-muted);
+  }
+  .editor-date-bar input[type="date"] {
+    background: var(--glass-solid); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm); padding: 4px 10px;
+    color: var(--text); font-size: 13px; font-family: inherit;
+    outline: none;
+  }
+
+  .editor-title-input {
+    font-size: 26px; font-weight: 700; color: var(--text);
+    background: none; border: none; outline: none;
+    font-family: inherit; width: 100%;
+    margin-bottom: 6px;
+  }
+  .editor-title-input::placeholder { color: var(--text-muted); }
+
+  .editor-tags-row {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .editor-tag {
+    font-size: 11px; padding: 3px 10px; border-radius: 8px;
+    background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; gap: 4px; cursor: default;
+  }
+  .editor-tag .del-tag {
+    cursor: pointer; opacity: 0.6; font-size: 12px;
+  }
+  .editor-tag .del-tag:hover { opacity: 1; }
+  .editor-tag-input {
+    font-size: 12px; background: none; border: none; outline: none;
+    color: var(--text-muted); font-family: inherit; padding: 3px 4px;
+    min-width: 60px;
+  }
+  .editor-tag-input::placeholder { color: var(--text-muted); }
+
+  .editor-content {
+    flex: 1; overflow-y: auto; outline: none;
+    font-size: 15px; line-height: 1.8; color: var(--text-secondary);
+    min-height: 200px; padding: 4px 0;
+  }
+  .editor-content:empty::before {
+    content: '开始记录你的想法…';
+    color: var(--text-muted);
+  }
+  .editor-content h1 { font-size: 1.6em; font-weight: 700; margin: 0.5em 0 0.3em; color: var(--text); }
+  .editor-content h2 { font-size: 1.3em; font-weight: 600; margin: 0.5em 0 0.3em; color: var(--text); }
+  .editor-content h3 { font-size: 1.1em; font-weight: 600; margin: 0.4em 0 0.2em; color: var(--text); }
+  .editor-content p { margin: 0.4em 0; }
+  .editor-content ul, .editor-content ol { padding-left: 1.5em; margin: 0.4em 0; }
+  .editor-content blockquote {
+    border-left: 3px solid var(--accent); padding-left: 16px;
+    color: var(--text-muted); margin: 0.6em 0;
+  }
+  .editor-content pre {
+    background: var(--glass-solid); border-radius: var(--radius-sm);
+    padding: 14px; overflow-x: auto; font-size: 13px;
+    border: 1px solid var(--glass-border); margin: 0.6em 0;
+  }
+  .editor-content a { color: var(--accent); text-decoration: underline; }
+
+  .editor-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 12px; margin-top: 12px;
+    border-top: 1px solid var(--divider);
+    font-size: 12px; color: var(--text-muted);
+  }
+  .editor-foot .save-indicator { display: flex; align-items: center; gap: 6px; }
+  .editor-foot .save-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    transition: background 0.3s;
+  }
+  .editor-foot .save-dot.saved { background: var(--success); }
+  .editor-foot .save-dot.dirty { background: var(--warn); }
+  .editor-foot button {
+    background: var(--glass-solid); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm); padding: 6px 14px;
+    color: var(--text-muted); font-size: 12px; cursor: pointer;
+    font-family: inherit; transition: all 0.2s;
+  }
+  .editor-foot button:hover { color: var(--text); background: var(--entry-hover); }
+
+  .editor-empty-state {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--text-muted); text-align: center; gap: 12px;
+  }
+  .editor-empty-state .big-icon { font-size: 56px; opacity: 0.3; }
+  .editor-empty-state h3 { font-size: 18px; color: var(--text-secondary); }
+  .editor-empty-state p { font-size: 14px; max-width: 260px; }
+
+  /* ─── New Notebook Modal ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--glass-solid); backdrop-filter: blur(32px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 32px; max-width: 400px; width: 100%;
+    box-shadow: var(--shadow-lg);
+    animation: modalUp 0.3s ease;
+  }
+  @keyframes modalUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal h2 { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+  .modal-close { float: right; background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+  .modal-close:hover { color: var(--text); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 14px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md); color: var(--text); font-size: 14px;
+    font-family: inherit; outline: none; transition: border 0.25s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-actions button {
+    flex: 1; padding: 11px; border: none; border-radius: var(--radius-md);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: all 0.25s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { filter: brightness(1.12); }
+  .btn-secondary { background: var(--glass-solid); color: var(--text-secondary); border: 1px solid var(--glass-border); }
+  .btn-secondary:hover { background: var(--entry-hover); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { filter: brightness(1.12); }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 860px) {
+    .sidebar { width: 56px; padding: 14px 8px; }
+    .sidebar-logo span, .notebook-item span:not(.icon), .notebook-item .count, .sidebar-footer .icon-btn span { display: none; }
+    .notebook-item { justify-content: center; padding: 10px; }
+    .notebook-item .del-notebook { display: none !important; }
+    .entry-list { width: 200px; }
+    .editor-panel { padding: 16px; }
+    .editor-title-input { font-size: 20px; }
+  }
+  @media (max-width: 640px) {
+    .app { padding: 8px; gap: 8px; }
+    .sidebar { width: 48px; padding: 10px 6px; border-radius: var(--radius-lg); }
+    .entry-list { width: 160px; padding: 10px 6px; }
+    .entry-list { display: none; }
+    .entry-list.show { display: flex; position: fixed; inset: 0; z-index: 50; border-radius: 0; width: 100%; }
+    .editor-panel { border-radius: var(--radius-lg); padding: 14px; }
+    .editor-title-input { font-size: 18px; }
+    .topbar { padding: 8px 12px; }
+    .editor-toolbar { gap: 2px; }
+    .editor-toolbar button { width: 28px; height: 28px; font-size: 12px; }
+  }
+
+  /* ─── Toast ─── */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    z-index: 200;
+    background: var(--glass-solid); backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px; padding: 14px 24px;
+    box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; color: var(--text);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0; transform: translateX(-50%) translateY(20px);
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+</style>
+</head>
+<body>
+
+<div class="orb"></div><div class="orb"></div><div class="orb"></div>
+
+<div class="app" id="app">
+
+  <!-- ═══ Sidebar ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><span>📓 记录簿</span></div>
+      <button class="sidebar-action" id="newNotebookBtn" title="新建笔记本">＋</button>
+    </div>
+    <div class="notebook-list" id="notebookList"></div>
+    <div class="sidebar-footer">
+      <button class="icon-btn" id="themeBtn" title="切换主题">🌙</button>
+      <button class="icon-btn" id="exportBtn" title="导出当前笔记本">📥</button>
+      <button class="icon-btn" id="menuToggleBtn" title="切换侧栏" style="display:none;">☰</button>
+    </div>
+  </aside>
+
+  <!-- ═══ Main ═══ -->
+  <div class="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="search-wrap">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索记录…" autocomplete="off">
+      </div>
+      <div class="topbar-actions">
+        <button id="newEntryBtn" title="新建记录">✏️</button>
+        <button id="deleteEntryBtn" title="删除当前记录">🗑️</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Entry List -->
+      <div class="entry-list" id="entryList">
+        <div class="entry-list-header">
+          <h3 id="entryListTitle">所有记录</h3>
+          <span id="entryCount">0</span>
+        </div>
+        <div class="entry-scroll" id="entryScroll"></div>
+      </div>
+
+      <!-- Editor -->
+      <div class="editor-panel" id="editorPanel">
+
+        <!-- Toolbar -->
+        <div class="editor-toolbar" id="editorToolbar">
+          <div class="tool-group">
+            <button data-cmd="bold" title="粗体"><strong>B</strong></button>
+            <button data-cmd="italic" title="斜体"><em>I</em></button>
+            <button data-cmd="underline" title="下划线"><u>U</u></button>
+            <button data-cmd="strikeThrough" title="删除线"><s>S</s></button>
+          </div>
+          <div class="tool-divider"></div>
+          <div class="tool-group">
+            <button data-cmd="heading" title="标题">H</button>
+            <button data-cmd="bullet" title="无序列表">•</button>
+            <button data-cmd="number" title="有序列表">1.</button>
+            <button data-cmd="quote" title="引用">❝</button>
+            <button data-cmd="code" title="代码块">&lt;/&gt;</button>
+          </div>
+          <div class="tool-divider"></div>
+          <div class="tool-group">
+            <button data-cmd="clear" title="清除格式">↺</button>
+          </div>
+        </div>
+
+        <!-- Date & Title -->
+        <div class="editor-date-bar">
+          <input type="date" id="entryDate">
+          <span id="entryWeekday"></span>
+        </div>
+        <input class="editor-title-input" id="entryTitle"
+               placeholder="标题" autocomplete="off">
+
+        <!-- Tags -->
+        <div class="editor-tags-row" id="tagsRow">
+          <input class="editor-tag-input" id="tagInput"
+                 placeholder="+ 添加标签" autocomplete="off">
+        </div>
+
+        <!-- Content -->
+        <div class="editor-content" id="entryContent"
+             contenteditable="true" spellcheck="true"></div>
+
+        <!-- Footer -->
+        <div class="editor-foot">
+          <div class="save-indicator">
+            <span class="save-dot saved" id="saveDot"></span>
+            <span id="saveStatus">已保存</span>
+          </div>
+          <div>
+            <span id="wordCount">0 字</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Modal: New Notebook ═══ -->
+<div class="modal-overlay" id="notebookModal">
+  <div class="modal">
+    <button class="modal-close" id="notebookModalClose">✕</button>
+    <h2>📓 新建笔记本</h2>
+    <div class="field">
+      <label>名称</label>
+      <input type="text" id="notebookName" placeholder="笔记本名称" maxlength="30">
+    </div>
+    <div class="field">
+      <label>图标</label>
+      <select id="notebookIcon">
+        <option value="📓">📓</option><option value="📘">📘</option>
+        <option value="📗">📗</option><option value="📕">📕</option>
+        <option value="📒">📒</option><option value="📔">📔</option>
+        <option value="📝">📝</option><option value="✍️">✍️</option>
+        <option value="💡">💡</option><option value="⭐">⭐</option>
+        <option value="❤️">❤️</option><option value="🌈">🌈</option>
+        <option value="🎯">🎯</option><option value="🗂️">🗂️</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="notebookModalCancel">取消</button>
+      <button class="btn-primary" id="notebookModalConfirm">创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Modal: Confirm Delete ═══ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h2 id="confirmTitle">确认删除？</h2>
+    <p style="color:var(--text-secondary);font-size:14px;" id="confirmMsg">此操作不可撤销。</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="confirmCancel">取消</button>
+      <button class="btn-danger" id="confirmOk">删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Toast ═══ -->
+<div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg"></span></div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ─── DOM ───────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const $$ = (sel, ctx) => (ctx || document).querySelectorAll(sel);
+
+  const notebookList   = $('notebookList');
+  const entryScroll     = $('entryScroll');
+  const entryListTitle  = $('entryListTitle');
+  const entryCount      = $('entryCount');
+  const searchInput     = $('searchInput');
+  const entryTitle      = $('entryTitle');
+  const entryContent    = $('entryContent');
+  const entryDate       = $('entryDate');
+  const entryWeekday    = $('entryWeekday');
+  const tagInput        = $('tagInput');
+  const tagsRow         = $('tagsRow');
+  const saveDot         = $('saveDot');
+  const saveStatus      = $('saveStatus');
+  const wordCount       = $('wordCount');
+  const toast           = $('toast');
+  const toastMsg        = $('toastMsg');
+  const toastIcon       = $('toastIcon');
+
+  const STORAGE_KEY = 'notebook-app-data';
+  const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
+  // ─── State ─────────────────────────────────────────────────
+  let data = { notebooks: [], entries: [] };
+  let activeNotebookId = null;
+  let activeEntryId = null;
+  let saveTimeout = null;
+  let isDirty = false;
+  let theme = 'dark';
+  let searchQuery = '';
+
+  // ─── Load ──────────────────────────────────────────────────
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        data.notebooks = d.notebooks || [];
+        data.entries   = d.entries || [];
+        theme = d.theme || 'dark';
+        // ensure default notebook
+        if (!data.notebooks.length) {
+          data.notebooks.push({ id: 'default', name: '我的笔记', icon: '📓' });
+        }
+        activeNotebookId = d.activeNotebook || data.notebooks[0].id;
+        activeEntryId = d.activeEntry || null;
+      } else {
+        // first launch
+        data.notebooks.push({ id: 'default', name: '我的笔记', icon: '📓' });
+        activeNotebookId = 'default';
+      }
+    } catch(e) { console.warn('Load error', e); }
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        notebooks: data.notebooks,
+        entries: data.entries,
+        theme,
+        activeNotebook: activeNotebookId,
+        activeEntry: activeEntryId,
+      }));
+    } catch(e) { console.warn('Save error', e); }
+  }
+
+  // ─── Theme ─────────────────────────────────────────────────
+  function applyTheme(t) {
+    theme = t;
+    document.documentElement.setAttribute('data-theme', t);
+    $('themeBtn').textContent = t === 'dark' ? '☀️' : '🌙';
+    save();
+  }
+  $('themeBtn').addEventListener('click', () => applyTheme(theme === 'dark' ? 'light' : 'dark'));
+
+  // ─── Helpers ───────────────────────────────────────────────
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function formatDate(str) {
+    const d = new Date(str + 'T00:00:00');
+    const m = d.getMonth()+1, day = d.getDate();
+    return `${m}月${day}日 周${WEEKDAYS[d.getDay()]}`;
+  }
+  function formatDateShort(str) {
+    const d = new Date(str + 'T00:00:00');
+    return `${d.getMonth()+1}/${d.getDate()}`;
+  }
+  function getWeekday(str) {
+    return '星期' + WEEKDAYS[new Date(str + 'T00:00:00').getDay()];
+  }
+  function plainText(html) {
+    const t = document.createElement('div');
+    t.innerHTML = html;
+    return t.textContent || t.innerText || '';
+  }
+  function wordCountText(html) {
+    return plainText(html).replace(/\s/g, '').length;
+  }
+
+  // ─── Toast ─────────────────────────────────────────────────
+  let toastTimer = null;
+  function showToast(icon, msg) {
+    toastIcon.textContent = icon;
+    toastMsg.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ─── Render Notebooks ─────────────────────────────────────
+  function renderNotebooks() {
+    notebookList.innerHTML = '';
+    data.notebooks.forEach(nb => {
+      const count = data.entries.filter(e => e.notebookId === nb.id).length;
+      const div = document.createElement('div');
+      div.className = `notebook-item${nb.id === activeNotebookId ? ' active' : ''}`;
+      div.dataset.id = nb.id;
+      div.innerHTML = `
+        <span class="icon">${nb.icon}</span>
+        <span>${nb.name}</span>
+        <span class="count">${count}</span>
+        ${data.notebooks.length > 1 ? '<button class="del-notebook" title="删除笔记本">✕</button>' : ''}
+      `;
+      div.addEventListener('click', (e) => {
+        if (e.target.closest('.del-notebook')) return;
+        switchNotebook(nb.id);
+      });
+      const delBtn = div.querySelector('.del-notebook');
+      if (delBtn) {
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          confirmDeleteNotebook(nb.id);
+        });
+      }
+      notebookList.appendChild(div);
+    });
+  }
+
+  function switchNotebook(id) {
+    if (id === activeNotebookId) return;
+    saveCurrentEntry();
+    activeNotebookId = id;
+    activeEntryId = null;
+    renderNotebooks();
+    renderEntries();
+    showEditorEmpty();
+    save();
+  }
+
+  // ─── Render Entries ───────────────────────────────────────
+  function renderEntries() {
+    const nb = data.notebooks.find(n => n.id === activeNotebookId);
+    entryListTitle.textContent = nb ? `${nb.icon} ${nb.name}` : '所有记录';
+
+    let entries = data.entries.filter(e => e.notebookId === activeNotebookId);
+
+    // search filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      entries = entries.filter(e =>
+        e.title.toLowerCase().includes(q) ||
+        plainText(e.content).toLowerCase().includes(q) ||
+        (e.tags || []).some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    // sort: pinned first, then by date desc
+    entries.sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return (b.date || '') > (a.date || '') ? 1 : -1;
+    });
+
+    entryCount.textContent = entries.length;
+    entryScroll.innerHTML = '';
+
+    if (!entries.length) {
+      entryScroll.innerHTML = `
+        <div class="empty-entries">
+          <div class="big-icon">📝</div>
+          ${searchQuery ? '没有匹配的记录' : '还没有记录，点击 ✏️ 创建'}
+        </div>`;
+      return;
+    }
+
+    entries.forEach(e => {
+      const card = document.createElement('div');
+      card.className = `entry-card${e.id === activeEntryId ? ' active' : ''}`;
+      card.dataset.id = e.id;
+      const preview = plainText(e.content).slice(0, 40);
+      const tags = e.tags || [];
+      card.innerHTML = `
+        <div class="ec-title">${e.pinned ? '📌 ' : ''}${e.title || '无标题'}</div>
+        <div class="ec-preview">${preview || '空内容'}</div>
+        <div class="ec-meta">
+          <span class="ec-date">${formatDateShort(e.date || todayStr())}</span>
+          ${tags.length ? tags.slice(0, 2).map(t => `<span class="ec-tag">${t}</span>`).join('') : ''}
+          ${tags.length > 2 ? `<span class="ec-tag">+${tags.length-2}</span>` : ''}
+        </div>
+      `;
+      card.addEventListener('click', () => openEntry(e.id));
+      entryScroll.appendChild(card);
+    });
+  }
+
+  // ─── Open Entry ───────────────────────────────────────────
+  function openEntry(id) {
+    saveCurrentEntry();
+    activeEntryId = id;
+    renderEntries();
+
+    const entry = data.entries.find(e => e.id === id);
+    if (!entry) return;
+
+    entryTitle.value = entry.title || '';
+    entryContent.innerHTML = entry.content || '';
+    entryDate.value = entry.date || todayStr();
+    entryWeekday.textContent = getWeekday(entry.date || todayStr());
+    renderTags(entry.tags || []);
+    updateWordCount();
+    markSaved();
+  }
+
+  function showEditorEmpty() {
+    activeEntryId = null;
+    entryTitle.value = '';
+    entryContent.innerHTML = '';
+    entryDate.value = todayStr();
+    entryWeekday.textContent = getWeekday(todayStr());
+    renderTags([]);
+    wordCount.textContent = '0 字';
+    $('editorPanel').querySelector('.editor-toolbar').style.display = 'flex';
+    // show empty state via placeholder
+    markSaved();
+  }
+
+  // ─── New Entry ─────────────────────────────────────────────
+  function newEntry() {
+    saveCurrentEntry();
+    const entry = {
+      id: uid(),
+      notebookId: activeNotebookId,
+      title: '',
+      content: '',
+      date: todayStr(),
+      tags: [],
+      pinned: false,
+      createdAt: new Date().toISOString(),
+    };
+    data.entries.unshift(entry);
+    activeEntryId = entry.id;
+    renderEntries();
+    openEntry(entry.id);
+    entryTitle.focus();
+    save();
+    showToast('✅', '新建记录');
+  }
+
+  // ─── Save Current Entry ───────────────────────────────────
+  function saveCurrentEntry() {
+    if (!activeEntryId) return;
+    const entry = data.entries.find(e => e.id === activeEntryId);
+    if (!entry) return;
+
+    const title = entryTitle.value.trim();
+    const content = entryContent.innerHTML.trim();
+    const date = entryDate.value;
+    const tags = getTagsFromDOM();
+
+    // skip save if nothing changed
+    if (entry.title === title && entry.content === content && entry.date === date &&
+        JSON.stringify(entry.tags) === JSON.stringify(tags)) {
+      return;
+    }
+
+    entry.title = title;
+    entry.content = content || '';
+    entry.date = date;
+    entry.tags = tags;
+    markSaved();
+    renderEntries();
+    save();
+  }
+
+  function getTagsFromDOM() {
+    const tags = [];
+    tagsRow.querySelectorAll('.editor-tag').forEach(el => {
+      const text = el.dataset.tag;
+      if (text) tags.push(text);
+    });
+    return tags;
+  }
+
+  // ─── Auto-save ─────────────────────────────────────────────
+  function markDirty() {
+    isDirty = true;
+    saveDot.className = 'save-dot dirty';
+    saveStatus.textContent = '未保存';
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      saveCurrentEntry();
+      markSaved();
+    }, 800);
+  }
+
+  function markSaved() {
+    isDirty = false;
+    saveDot.className = 'save-dot saved';
+    saveStatus.textContent = '已保存';
+  }
+
+  // ─── Tags ──────────────────────────────────────────────────
+  function renderTags(tags) {
+    // remove existing tag elements (keep input)
+    tagsRow.querySelectorAll('.editor-tag').forEach(el => el.remove());
+    tags.forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'editor-tag';
+      span.dataset.tag = t;
+      span.innerHTML = `${t} <span class="del-tag">✕</span>`;
+      span.querySelector('.del-tag').addEventListener('click', () => {
+        span.remove();
+        markDirty();
+      });
+      tagsRow.insertBefore(span, tagInput);
+    });
+  }
+
+  tagInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = tagInput.value.trim();
+      if (val) {
+        const existing = getTagsFromDOM();
+        if (!existing.includes(val)) {
+          const span = document.createElement('span');
+          span.className = 'editor-tag';
+          span.dataset.tag = val;
+          span.innerHTML = `${val} <span class="del-tag">✕</span>`;
+          span.querySelector('.del-tag').addEventListener('click', () => {
+            span.remove();
+            markDirty();
+          });
+          tagsRow.insertBefore(span, tagInput);
+          markDirty();
+        }
+      }
+      tagInput.value = '';
+    }
+    if (e.key === 'Backspace' && !tagInput.value) {
+      const tags = tagsRow.querySelectorAll('.editor-tag');
+      if (tags.length) tags[tags.length - 1].remove();
+      markDirty();
+    }
+  });
+  tagInput.addEventListener('blur', () => {
+    const val = tagInput.value.trim();
+    if (val) {
+      const span = document.createElement('span');
+      span.className = 'editor-tag';
+      span.dataset.tag = val;
+      span.innerHTML = `${val} <span class="del-tag">✕</span>`;
+      span.querySelector('.del-tag').addEventListener('click', () => {
+        span.remove();
+        markDirty();
+      });
+      tagsRow.insertBefore(span, tagInput);
+      tagInput.value = '';
+      markDirty();
+    }
+  });
+
+  // ─── Editor Events ─────────────────────────────────────────
+  entryTitle.addEventListener('input', markDirty);
+  entryContent.addEventListener('input', () => {
+    markDirty();
+    updateWordCount();
+  });
+  entryDate.addEventListener('change', () => {
+    entryWeekday.textContent = getWeekday(entryDate.value);
+    markDirty();
+  });
+
+  // ─── Word Count ────────────────────────────────────────────
+  function updateWordCount() {
+    const count = wordCountText(entryContent.innerHTML);
+    wordCount.textContent = `${count} 字`;
+  }
+
+  // ─── Toolbar ───────────────────────────────────────────────
+  document.querySelectorAll('[data-cmd]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cmd = btn.dataset.cmd;
+      entryContent.focus();
+      switch(cmd) {
+        case 'heading':
+          document.execCommand('formatBlock', false, 'h2');
+          break;
+        case 'bullet':
+          document.execCommand('insertUnorderedList', false);
+          break;
+        case 'number':
+          document.execCommand('insertOrderedList', false);
+          break;
+        case 'quote':
+          document.execCommand('formatBlock', false, 'blockquote');
+          break;
+        case 'code':
+          document.execCommand('formatBlock', false, 'pre');
+          break;
+        case 'clear':
+          document.execCommand('removeFormat', false);
+          break;
+        default:
+          document.execCommand(cmd, false);
+      }
+      markDirty();
+      updateWordCount();
+    });
+  });
+
+  // ─── Delete Entry ──────────────────────────────────────────
+  $('deleteEntryBtn').addEventListener('click', () => {
+    if (!activeEntryId) return;
+    $('confirmTitle').textContent = '删除此记录？';
+    $('confirmMsg').textContent = '删除后将无法恢复。';
+    $('confirmModal').classList.add('open');
+    $('confirmOk').onclick = () => {
+      data.entries = data.entries.filter(e => e.id !== activeEntryId);
+      activeEntryId = null;
+      renderEntries();
+      showEditorEmpty();
+      save();
+      $('confirmModal').classList.remove('open');
+      showToast('🗑️', '已删除');
+    };
+  });
+  $('confirmCancel').addEventListener('click', () => $('confirmModal').classList.remove('open'));
+
+  // ─── Delete Notebook ───────────────────────────────────────
+  function confirmDeleteNotebook(id) {
+    const nb = data.notebooks.find(n => n.id === id);
+    if (!nb || data.notebooks.length <= 1) return;
+    $('confirmTitle').textContent = `删除笔记本 ${nb.icon} ${nb.name}？`;
+    $('confirmMsg').textContent = `其中的 ${data.entries.filter(e => e.notebookId === id).length} 条记录也将被删除。`;
+    $('confirmModal').classList.add('open');
+    $('confirmOk').onclick = () => {
+      data.entries = data.entries.filter(e => e.notebookId !== id);
+      data.notebooks = data.notebooks.filter(n => n.id !== id);
+      if (activeNotebookId === id) {
+        activeNotebookId = data.notebooks[0].id;
+        activeEntryId = null;
+      }
+      renderNotebooks();
+      renderEntries();
+      showEditorEmpty();
+      save();
+      $('confirmModal').classList.remove('open');
+      showToast('🗑️', '笔记本已删除');
+    };
+  }
+
+  // ─── New Notebook Modal ────────────────────────────────────
+  const nbModal = $('notebookModal');
+  function openNbModal() { nbModal.classList.add('open'); $('notebookName').value = ''; $('notebookName').focus(); }
+  function closeNbModal() { nbModal.classList.remove('open'); }
+  $('newNotebookBtn').addEventListener('click', openNbModal);
+  $('notebookModalClose').addEventListener('click', closeNbModal);
+  $('notebookModalCancel').addEventListener('click', closeNbModal);
+  nbModal.addEventListener('click', (e) => { if (e.target === nbModal) closeNbModal(); });
+  $('notebookModalConfirm').addEventListener('click', () => {
+    const name = $('notebookName').value.trim();
+    if (!name) { showToast('⚠️', '请输入名称'); return; }
+    const icon = $('notebookIcon').value;
+    const nb = { id: uid(), name, icon };
+    data.notebooks.push(nb);
+    activeNotebookId = nb.id;
+    activeEntryId = null;
+    renderNotebooks();
+    renderEntries();
+    showEditorEmpty();
+    save();
+    closeNbModal();
+    showToast('📓', `创建了「${name}」`);
+  });
+
+  // ─── Search ────────────────────────────────────────────────
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value.trim();
+    activeEntryId = null;
+    renderEntries();
+    showEditorEmpty();
+  });
+
+  // ─── Export ────────────────────────────────────────────────
+  $('exportBtn').addEventListener('click', () => {
+    const entries = data.entries.filter(e => e.notebookId === activeNotebookId);
+    const nb = data.notebooks.find(n => n.id === activeNotebookId);
+    const lines = [];
+    lines.push(`# ${nb.icon} ${nb.name}\n`);
+    entries.forEach(e => {
+      lines.push(`## ${e.title || '无标题'}`);
+      lines.push(`日期: ${formatDate(e.date || '')}`);
+      if (e.tags && e.tags.length) lines.push(`标签: ${e.tags.join(', ')}`);
+      lines.push('');
+      lines.push(plainText(e.content));
+      lines.push('\n---\n');
+    });
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${nb ? nb.name : '笔记本'}_${todayStr()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('📥', '导出成功');
+  });
+
+  // ─── Keyboard ──────────────────────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' && e.target.type !== 'text') return;
+    if (e.target.contentEditable === 'true') return;
+
+    switch(e.key) {
+      case 'n': case 'N':
+        if (!e.ctrlKey && !e.metaKey) { newEntry(); e.preventDefault(); }
+        break;
+      case 'Escape':
+        $('confirmModal').classList.remove('open');
+        $('notebookModal').classList.remove('open');
+        break;
+    }
+  });
+
+  // Ctrl+S to save
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveCurrentEntry();
+      showToast('💾', '已保存');
+    }
+  });
+
+  // ─── Pin entry via context menu ────────────────────────────
+  // Right-click on entry card to toggle pin
+  entryScroll.addEventListener('contextmenu', (e) => {
+    const card = e.target.closest('.entry-card');
+    if (!card) return;
+    e.preventDefault();
+    const id = card.dataset.id;
+    const entry = data.entries.find(en => en.id === id);
+    if (entry) {
+      entry.pinned = !entry.pinned;
+      renderEntries();
+      save();
+      showToast(entry.pinned ? '📌' : '🔓', entry.pinned ? '已置顶' : '取消置顶');
+    }
+  });
+
+  // ─── Init ──────────────────────────────────────────────────
+  load();
+  applyTheme(theme);
+  renderNotebooks();
+  renderEntries();
+
+  // set date
+  entryDate.value = todayStr();
+  entryWeekday.textContent = getWeekday(todayStr());
+
+  // open last active entry or empty
+  if (activeEntryId && data.entries.find(e => e.id === activeEntryId)) {
+    openEntry(activeEntryId);
+  } else {
+    showEditorEmpty();
+  }
+
+  // Finally
+  save();
+  console.log('📓 记录簿已启动');
+  console.log('快捷键: N=新建, Ctrl+S=保存, 右键=置顶');
+
+})();
+</script>
+</body>
+</html>

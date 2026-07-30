@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>番茄钟 · Focus</title>
+<style>
+  /* 字体使用系统默认 */
+
+  *, *::before, *::after {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+
+  :root {
+    --bg-1: #0f0c29;
+    --bg-2: #302b63;
+    --bg-3: #24243e;
+    --glass-bg: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.10);
+    --glass-shadow: rgba(0,0,0,0.3);
+    --text: #ffffff;
+    --text-secondary: rgba(255,255,255,0.7);
+    --text-muted: rgba(255,255,255,0.4);
+    --accent: #f97316;
+    --accent-glow: rgba(249,115,22,0.35);
+    --accent-soft: rgba(249,115,22,0.12);
+    --break-accent: #34d399;
+    --break-glow: rgba(52,211,153,0.30);
+    --break-soft: rgba(52,211,153,0.10);
+    --long-accent: #60a5fa;
+    --long-glow: rgba(96,165,250,0.30);
+    --ring-bg: rgba(255,255,255,0.06);
+    --card-bg: rgba(255,255,255,0.03);
+    --stat-bg: rgba(255,255,255,0.04);
+    --stat-hover: rgba(255,255,255,0.08);
+    --transition: 0.4s ease;
+    --focus-color: var(--accent);
+    --focus-glow: var(--accent-glow);
+    --focus-soft: var(--accent-soft);
+  }
+
+  [data-theme="light"] {
+    --bg-1: #f0e7db;
+    --bg-2: #faf5f0;
+    --bg-3: #ffffff;
+    --glass-bg: rgba(255,255,255,0.6);
+    --glass-border: rgba(249,115,22,0.12);
+    --glass-shadow: rgba(249,115,22,0.06);
+    --text: #1c1917;
+    --text-secondary: rgba(28,25,23,0.65);
+    --text-muted: rgba(28,25,23,0.35);
+    --ring-bg: rgba(249,115,22,0.08);
+    --card-bg: rgba(255,255,255,0.4);
+    --stat-bg: rgba(255,255,255,0.4);
+    --stat-hover: rgba(255,255,255,0.6);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    overflow: hidden;
+    transition: background var(--transition);
+    position: relative;
+  }
+
+  /* ─── Background Orbs ─── */
+  .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.25; pointer-events: none; z-index: 0; animation: orbFloat 20s ease-in-out infinite; }
+  .orb:nth-child(1) { width: 500px; height: 500px; background: #f97316; top: -10%; left: -8%; animation-delay: 0s; }
+  .orb:nth-child(2) { width: 420px; height: 420px; background: #a855f7; bottom: -8%; right: -6%; animation-delay: -7s; }
+  .orb:nth-child(3) { width: 360px; height: 360px; background: #06b6d4; top: 45%; left: 55%; animation-delay: -14s; }
+  @keyframes orbFloat {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(50px,-40px) scale(1.08); }
+    66% { transform: translate(-30px,35px) scale(0.95); }
+  }
+
+  .container { position: relative; z-index: 1; width: 100%; max-width: 520px; padding: 20px; }
+
+  /* ─── Header ─── */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding: 0 8px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+  .logo-icon { font-size: 26px; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: var(--glass-bg); backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:hover { transform: scale(1.06); color: var(--text); box-shadow: 0 0 20px var(--focus-glow); }
+  .icon-btn:active { transform: scale(0.92); }
+
+  /* ─── Mode Tabs ─── */
+  .mode-tabs {
+    display: flex; background: var(--ring-bg);
+    border-radius: 16px; padding: 4px; margin-bottom: 32px;
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+  }
+  .mode-tab {
+    flex: 1; padding: 10px 12px; text-align: center;
+    border: none; background: transparent; border-radius: 12px;
+    color: var(--text-muted); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.3s ease; font-family: inherit;
+    position: relative;
+  }
+  .mode-tab:hover { color: var(--text-secondary); }
+  .mode-tab.active {
+    background: var(--focus-soft);
+    color: var(--focus-color);
+    font-weight: 600;
+  }
+  [data-mode="shortBreak"] .mode-tab.active { background: var(--break-soft); color: var(--break-accent); }
+  [data-mode="longBreak"] .mode-tab.active  { background: rgba(96,165,250,0.12); color: var(--long-accent); }
+
+  /* ─── Timer Card ─── */
+  .timer-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 48px;
+    padding: 40px 36px 36px;
+    box-shadow: 0 8px 40px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.06);
+    transition: all var(--transition);
+    text-align: center;
+  }
+
+  /* ─── Ring Progress ─── */
+  .ring-wrap {
+    position: relative;
+    width: 260px; height: 260px;
+    margin: 0 auto 28px;
+  }
+  .ring-wrap svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+  .ring-bg-circle {
+    fill: none;
+    stroke: var(--ring-bg);
+    stroke-width: 6;
+  }
+  .ring-progress {
+    fill: none;
+    stroke: var(--focus-color);
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+  }
+  .ring-center {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring-time {
+    font-size: 70px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .ring-label {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  /* ─── Controls ─── */
+  .controls {
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px; margin-top: 4px;
+  }
+  .ctrl-btn {
+    border: none; border-radius: 50%;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-family: inherit;
+  }
+  .ctrl-btn:hover { transform: scale(1.08); color: var(--text); box-shadow: 0 0 24px var(--focus-glow); }
+  .ctrl-btn:active { transform: scale(0.90); }
+  .ctrl-btn.primary {
+    width: 72px; height: 72px;
+    background: var(--focus-color);
+    border-color: var(--focus-color);
+    color: #fff;
+    font-size: 26px;
+    box-shadow: 0 0 30px var(--focus-glow);
+  }
+  .ctrl-btn.primary:hover { box-shadow: 0 0 50px var(--focus-glow); transform: scale(1.05); }
+  .ctrl-btn.primary:active { transform: scale(0.93); }
+
+  [data-mode="shortBreak"] .ctrl-btn.primary { background: var(--break-accent); border-color: var(--break-accent); box-shadow: 0 0 30px var(--break-glow); }
+  [data-mode="longBreak"] .ctrl-btn.primary  { background: var(--long-accent);  border-color: var(--long-accent);  box-shadow: 0 0 30px var(--long-glow); }
+
+  /* ─── Stats ─── */
+  .stats {
+    display: flex; gap: 12px; margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--glass-border);
+  }
+  .stat-item {
+    flex: 1;
+    background: var(--stat-bg);
+    border-radius: 16px;
+    padding: 14px 10px;
+    text-align: center;
+    transition: background 0.3s;
+    border: 1px solid transparent;
+  }
+  .stat-item:hover { background: var(--stat-hover); border-color: var(--glass-border); }
+  .stat-value {
+    font-size: 26px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, var(--text) 40%, var(--focus-color));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  [data-mode="shortBreak"] .stat-value { background: linear-gradient(135deg, var(--text) 40%, var(--break-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  [data-mode="longBreak"] .stat-value  { background: linear-gradient(135deg, var(--text) 40%, var(--long-accent));  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.5px; }
+
+  /* ─── Task Section ─── */
+  .task-section { margin-top: 20px; }
+  .task-input-wrap {
+    display: flex; gap: 8px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 4px 4px 4px 16px;
+    transition: all 0.25s;
+  }
+  .task-input-wrap:focus-within {
+    border-color: var(--focus-color);
+    box-shadow: 0 0 20px var(--focus-glow);
+  }
+  .task-input-wrap input {
+    flex: 1;
+    background: transparent; border: none; outline: none;
+    color: var(--text);
+    font-size: 14px; font-family: inherit;
+    padding: 10px 0;
+  }
+  .task-input-wrap input::placeholder { color: var(--text-muted); }
+  .task-input-wrap button {
+    padding: 8px 20px;
+    border: none; border-radius: 12px;
+    background: var(--focus-color);
+    color: #fff; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.25s; font-family: inherit;
+  }
+  .task-input-wrap button:hover { filter: brightness(1.15); }
+  .task-input-wrap button:active { transform: scale(0.95); }
+
+  .task-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; }
+  .task-list::-webkit-scrollbar { width: 4px; }
+  .task-list::-webkit-scrollbar-track { background: transparent; }
+  .task-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+  .task-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--stat-bg);
+    border-radius: 12px;
+    transition: all 0.25s;
+    border: 1px solid transparent;
+    animation: taskIn 0.3s ease;
+  }
+  @keyframes taskIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .task-item:hover { background: var(--stat-hover); border-color: var(--glass-border); }
+  .task-check {
+    width: 18px; height: 18px; border-radius: 6px;
+    border: 2px solid var(--text-muted);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: transparent;
+  }
+  .task-check.done {
+    background: var(--focus-color);
+    border-color: var(--focus-color);
+    color: #fff;
+  }
+  .task-text {
+    flex: 1; font-size: 14px; color: var(--text-secondary);
+    transition: all 0.25s;
+    text-align: left;
+  }
+  .task-text.done { text-decoration: line-through; color: var(--text-muted); }
+  .task-pomos { font-size: 11px; color: var(--text-muted); background: var(--ring-bg); padding: 2px 8px; border-radius: 8px; white-space: nowrap; }
+  .task-del {
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 16px; padding: 2px 4px;
+    transition: all 0.2s; opacity: 0;
+  }
+  .task-item:hover .task-del { opacity: 1; }
+  .task-del:hover { color: #ef4444; }
+
+  /* ─── Settings Modal ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--card-bg);
+    backdrop-filter: blur(32px);
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    padding: 32px;
+    max-width: 400px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: modalUp 0.3s ease;
+  }
+  @keyframes modalUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal h2 { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
+  .modal-close {
+    float: right; background: none; border: none;
+    color: var(--text-muted); font-size: 22px; cursor: pointer;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--text); }
+  .setting-group { margin-bottom: 20px; }
+  .setting-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+  .setting-group input {
+    width: 100%; padding: 10px 14px;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 12px; color: var(--text); font-size: 15px;
+    font-family: inherit; outline: none; transition: border 0.25s;
+  }
+  .setting-group input:focus { border-color: var(--focus-color); }
+  .setting-group .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+  .modal-actions button {
+    flex: 1; padding: 12px;
+    border: none; border-radius: 14px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: all 0.25s;
+  }
+  .modal-actions .btn-save {
+    background: var(--focus-color); color: #fff;
+  }
+  .modal-actions .btn-save:hover { filter: brightness(1.12); }
+  .modal-actions .btn-cancel {
+    background: var(--ring-bg); color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
+  }
+  .modal-actions .btn-cancel:hover { background: var(--stat-hover); }
+
+  /* ─── Notification ─── */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    z-index: 200;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 16px 28px;
+    box-shadow: 0 8px 40px var(--glass-shadow);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 15px;
+    color: var(--text);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0; transform: translateX(-50%) translateY(20px);
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .toast-icon { font-size: 24px; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 540px) {
+    .timer-card { border-radius: 32px; padding: 28px 20px 24px; }
+    .ring-wrap { width: 210px; height: 210px; }
+    .ring-time { font-size: 54px; }
+    .ctrl-btn.primary { width: 62px; height: 62px; font-size: 22px; }
+    .ctrl-btn { width: 46px; height: 46px; font-size: 18px; }
+    .stats { gap: 8px; }
+    .stat-value { font-size: 20px; }
+    .container { padding: 12px; }
+    .header { margin-bottom: 20px; }
+    .mode-tab { font-size: 12px; padding: 8px 6px; }
+    .modal { padding: 24px 20px; }
+  }
+  @media (max-width: 380px) {
+    .ring-wrap { width: 170px; height: 170px; }
+    .ring-time { font-size: 42px; }
+    .stats { flex-direction: column; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Orbs -->
+  <div class="orb"></div><div class="orb"></div><div class="orb"></div>
+
+  <!-- Container -->
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo"><span class="logo-icon">🍅</span> Focus</div>
+      <div class="header-actions">
+        <button class="icon-btn" id="statsBtn" title="统计">📊</button>
+        <button class="icon-btn" id="settingsBtn" title="设置">⚙️</button>
+        <button class="icon-btn" id="themeBtn" title="切换主题">🌙</button>
+      </div>
+    </div>
+
+    <!-- Mode Tabs -->
+    <div class="mode-tabs" id="modeTabs">
+      <button class="mode-tab active" data-mode="focus">🍅 专注</button>
+      <button class="mode-tab" data-mode="shortBreak">☕ 短休</button>
+      <button class="mode-tab" data-mode="longBreak">🌿 长休</button>
+    </div>
+
+    <!-- Timer Card -->
+    <div class="timer-card" id="timerCard">
+      <div class="ring-wrap" id="ringWrap">
+        <svg viewBox="0 0 260 260">
+          <circle class="ring-bg-circle" cx="130" cy="130" r="118"/>
+          <circle class="ring-progress" id="ringProgress" cx="130" cy="130" r="118"
+                  stroke-dasharray="741.42" stroke-dashoffset="0"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-time" id="ringTime">25:00</div>
+          <div class="ring-label" id="ringLabel">专注时间</div>
+        </div>
+      </div>
+
+      <div class="controls" id="controls">
+        <button class="ctrl-btn" id="resetBtn" title="重置">↺</button>
+        <button class="ctrl-btn primary" id="mainBtn">▶</button>
+        <button class="ctrl-btn" id="skipBtn" title="跳过">⏭</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item"><div class="stat-value" id="statToday">0</div><div class="stat-label">今日完成</div></div>
+        <div class="stat-item"><div class="stat-value" id="statStreak">0</div><div class="stat-label">连续天数</div></div>
+        <div class="stat-item"><div class="stat-value" id="statTotal">0</div><div class="stat-label">累计番茄</div></div>
+      </div>
+    </div>
+
+    <!-- Task Section -->
+    <div class="task-section">
+      <div class="task-input-wrap">
+        <input type="text" id="taskInput" placeholder="添加一个任务 …" autocomplete="off">
+        <button id="taskAddBtn">添加</button>
+      </div>
+      <div class="task-list" id="taskList"></div>
+    </div>
+
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <button class="modal-close" id="modalCloseBtn">✕</button>
+      <h2>⚙️ 设置</h2>
+      <div class="setting-group">
+        <label>专注时长（分钟）</label>
+        <input type="number" id="settingFocus" min="1" max="120" value="25">
+      </div>
+      <div class="setting-group">
+        <label>短休时长（分钟）</label>
+        <input type="number" id="settingShort" min="1" max="30" value="5">
+      </div>
+      <div class="setting-group">
+        <label>长休时长（分钟）</label>
+        <input type="number" id="settingLong" min="1" max="60" value="15">
+      </div>
+      <div class="setting-group">
+        <label>长休间隔（番茄数）</label>
+        <input type="number" id="settingLongInterval" min="1" max="10" value="4">
+        <div class="hint">每完成 N 个番茄后进入长休</div>
+      </div>
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="settingAutoStart" checked>
+          自动开始下一阶段
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modalCancel">取消</button>
+        <button class="btn-save" id="modalSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Modal -->
+  <div class="modal-overlay" id="statsModal">
+    <div class="modal">
+      <button class="modal-close" id="statsCloseBtn">✕</button>
+      <h2>📊 统计</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="stat-item"><div class="stat-value" id="statMTotal">0</div><div class="stat-label">总番茄数</div></div>
+        <div class="stat-item"><div class="stat-value" id="statMDaily">0</div><div class="stat-label">日均</div></div>
+        <div class="stat-item"><div class="stat-value" id="statMBest">0</div><div class="stat-label">最佳单日</div></div>
+        <div class="stat-item"><div class="stat-value" id="statMStreak">0</div><div class="stat-label">最长连续</div></div>
+      </div>
+      <p style="text-align:center;color:var(--text-muted);font-size:13px;margin-top:20px;">所有数据保存在本地浏览器中 📦</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span class="toast-icon">🎉</span>
+    <span id="toastMsg">太棒了！完成一个番茄！</span>
+  </div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ─── DOM refs ─────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const ringTime      = $('ringTime');
+  const ringLabel     = $('ringLabel');
+  const ringProgress  = $('ringProgress');
+  const mainBtn       = $('mainBtn');
+  const resetBtn      = $('resetBtn');
+  const skipBtn       = $('skipBtn');
+  const modeTabs      = $('modeTabs');
+  const timerCard     = $('timerCard');
+  const statToday     = $('statToday');
+  const statStreak    = $('statStreak');
+  const statTotal     = $('statTotal');
+  const themeBtn      = $('themeBtn');
+  const settingsBtn   = $('settingsBtn');
+  const statsBtn      = $('statsBtn');
+  const settingsModal = $('settingsModal');
+  const statsModal    = $('statsModal');
+  const modalCloseBtn = $('modalCloseBtn');
+  const modalCancel   = $('modalCancel');
+  const modalSave     = $('modalSave');
+  const statsCloseBtn = $('statsCloseBtn');
+  const toast         = $('toast');
+  const toastMsg      = $('toastMsg');
+  const taskInput     = $('taskInput');
+  const taskAddBtn    = $('taskAddBtn');
+  const taskList      = $('taskList');
+
+  // ─── Constants ─────────────────────────────────────────────
+  const CIRCUMFERENCE = 2 * Math.PI * 118; // ≈ 741.42
+  const STORAGE_KEY = 'pomodoro-data';
+
+  // ─── State ─────────────────────────────────────────────────
+  let mode = 'focus'; // focus | shortBreak | longBreak
+  let seconds = 25 * 60;
+  let maxSeconds = 25 * 60;
+  let isRunning = false;
+  let isPaused = false;
+  let timerId = null;
+  let sessionCount = 0;  // consecutive focus sessions this cycle
+  let completedToday = 0;
+  let totalCompleted = 0;
+  let bestDaily = 0;
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let lastActiveDate = null;
+  let tasks = [];
+  let settings = {
+    focus: 25,
+    shortBreak: 5,
+    longBreak: 15,
+    longInterval: 4,
+    autoStart: true,
+  };
+  let theme = 'dark';
+
+  // ─── Load data ─────────────────────────────────────────────
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        totalCompleted  = d.total  || 0;
+        bestDaily       = d.best   || 0;
+        longestStreak   = d.streak || 0;
+        lastActiveDate  = d.lastDate || null;
+        tasks           = d.tasks  || [];
+        if (d.settings) Object.assign(settings, d.settings);
+        theme = d.theme || 'dark';
+        // daily reset check
+        const today = dateStr(new Date());
+        if (lastActiveDate === today) {
+          completedToday = d.today || 0;
+          currentStreak  = d.currentStreak || 0;
+        } else {
+          completedToday = 0;
+          // streak: if yesterday, continue; else reset
+          const yesterday = dateStr(offsetDate(new Date(), -1));
+          currentStreak = lastActiveDate === yesterday ? (d.currentStreak || 0) : 0;
+        }
+      }
+    } catch(e) { /* ignore */ }
+  }
+
+  function saveData() {
+    const today = dateStr(new Date());
+    const data = {
+      total: totalCompleted,
+      today: completedToday,
+      best: bestDaily,
+      currentStreak,
+      streak: longestStreak,
+      lastDate: today,
+      tasks,
+      settings,
+      theme,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function dateStr(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function offsetDate(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+
+  // ─── Theme ─────────────────────────────────────────────────
+  function applyTheme(t) {
+    theme = t;
+    document.documentElement.setAttribute('data-theme', t);
+    themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+    saveData();
+  }
+
+  themeBtn.addEventListener('click', () => {
+    applyTheme(theme === 'dark' ? 'light' : 'dark');
+  });
+
+  // ─── Mode switching ────────────────────────────────────────
+  function switchMode(newMode) {
+    if (isRunning) stopTimer();
+    mode = newMode;
+    timerCard.dataset.mode = mode;
+    document.getElementById('timerCard').dataset.mode = mode; // ensure
+
+    // update tabs
+    document.querySelectorAll('.mode-tab').forEach(el => {
+      el.classList.toggle('active', el.dataset.mode === mode);
+    });
+
+    const dur = settings[mode === 'focus' ? 'focus' : mode === 'shortBreak' ? 'shortBreak' : 'longBreak'];
+    maxSeconds = dur * 60;
+    seconds = maxSeconds;
+    updateDisplay();
+    updateRing(1);
+    updateLabel();
+
+    // reset buttons state
+    mainBtn.textContent = '▶';
+    isPaused = false;
+    saveData();
+  }
+
+  document.querySelectorAll('.mode-tab').forEach(el => {
+    el.addEventListener('click', () => {
+      if (el.dataset.mode !== mode) switchMode(el.dataset.mode);
+    });
+  });
+
+  // ─── Timer logic ───────────────────────────────────────────
+  function startTimer() {
+    if (isRunning && isPaused) {
+      // resume
+      isPaused = false;
+      mainBtn.textContent = '⏸';
+      timerId = setInterval(tick, 100);
+      return;
+    }
+    if (isRunning) return;
+    isRunning = true;
+    isPaused = false;
+    mainBtn.textContent = '⏸';
+    timerId = setInterval(tick, 100);
+  }
+
+  function pauseTimer() {
+    if (!isRunning || isPaused) return;
+    isPaused = true;
+    clearInterval(timerId);
+    timerId = null;
+    mainBtn.textContent = '▶';
+  }
+
+  function stopTimer() {
+    clearInterval(timerId);
+    timerId = null;
+    isRunning = false;
+    isPaused = false;
+    mainBtn.textContent = '▶';
+  }
+
+  function tick() {
+    seconds -= 0.1;
+    if (seconds <= 0) {
+      seconds = 0;
+      stopTimer();
+      onComplete();
+      return;
+    }
+    updateDisplay();
+    updateRing(seconds / maxSeconds);
+  }
+
+  function onComplete() {
+    // vibrate if available
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+
+    if (mode === 'focus') {
+      // completed a focus session
+      completedToday++;
+      totalCompleted++;
+      sessionCount++;
+
+      // update best daily
+      if (completedToday > bestDaily) bestDaily = completedToday;
+
+      // streak tracking
+      const today = dateStr(new Date());
+      if (lastActiveDate !== today) {
+        // new day
+        const yesterday = dateStr(offsetDate(new Date(), -1));
+        currentStreak = lastActiveDate === yesterday ? currentStreak + 1 : 1;
+        if (currentStreak > longestStreak) longestStreak = currentStreak;
+      } else {
+        // same day — if we hadn't completed any yet today, still counts
+        if (completedToday <= 1 && lastActiveDate === today) {
+          // already counted streak from previous day
+        }
+      }
+      lastActiveDate = today;
+
+      // add pomo to current task if any
+      addPomoToCurrentTask();
+
+      saveData();
+      updateStats();
+      showToast('🎉', `太棒了！完成第 ${totalCompleted} 个番茄！`);
+
+      // decide next mode
+      let nextMode;
+      if (sessionCount >= settings.longInterval) {
+        nextMode = 'longBreak';
+        sessionCount = 0;
+      } else {
+        nextMode = 'shortBreak';
+      }
+
+      if (settings.autoStart) {
+        switchMode(nextMode);
+        setTimeout(startTimer, 600);
+      } else {
+        switchMode(nextMode);
+      }
+    } else {
+      // break completed
+      showToast('⏰', '休息结束，开始新的专注吧！');
+      if (settings.autoStart) {
+        switchMode('focus');
+        setTimeout(startTimer, 600);
+      } else {
+        switchMode('focus');
+      }
+    }
+  }
+
+  function resetTimer() {
+    if (isRunning) stopTimer();
+    const dur = settings[mode === 'focus' ? 'focus' : mode === 'shortBreak' ? 'shortBreak' : 'longBreak'];
+    maxSeconds = dur * 60;
+    seconds = maxSeconds;
+    updateDisplay();
+    updateRing(1);
+    mainBtn.textContent = '▶';
+    isPaused = false;
+  }
+
+  function skipPhase() {
+    if (isRunning) stopTimer();
+    seconds = 0;
+    onComplete();
+  }
+
+  // ─── Display ───────────────────────────────────────────────
+  function updateDisplay() {
+    const totalSec = Math.max(0, Math.ceil(seconds));
+    const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
+    const s = String(totalSec % 60).padStart(2, '0');
+    ringTime.textContent = `${m}:${s}`;
+
+    // document title
+    const modeLabel = mode === 'focus' ? '专注' : mode === 'shortBreak' ? '短休' : '长休';
+    document.title = isRunning ? `[${m}:${s}] ${modeLabel} · 番茄钟` : '番茄钟 · Focus';
+  }
+
+  function updateRing(fraction) {
+    const offset = CIRCUMFERENCE * (1 - fraction);
+    ringProgress.setAttribute('stroke-dashoffset', offset);
+  }
+
+  function updateLabel() {
+    const labels = {
+      focus: '专注时间',
+      shortBreak: '短休时间',
+      longBreak: '长休时间',
+    };
+    ringLabel.textContent = labels[mode] || '专注时间';
+  }
+
+  // ─── Main Button ───────────────────────────────────────────
+  mainBtn.addEventListener('click', () => {
+    if (!isRunning) {
+      startTimer();
+    } else if (isPaused) {
+      startTimer(); // resume
+    } else {
+      pauseTimer();
+    }
+  });
+
+  resetBtn.addEventListener('click', resetTimer);
+  skipBtn.addEventListener('click', skipPhase);
+
+  // ─── Settings ──────────────────────────────────────────────
+  function openSettings() {
+    $('settingFocus').value = settings.focus;
+    $('settingShort').value = settings.shortBreak;
+    $('settingLong').value = settings.longBreak;
+    $('settingLongInterval').value = settings.longInterval;
+    $('settingAutoStart').checked = settings.autoStart;
+    settingsModal.classList.add('open');
+  }
+
+  function closeSettings() {
+    settingsModal.classList.remove('open');
+  }
+
+  function saveSettings() {
+    const newFocus = parseInt($('settingFocus').value) || 25;
+    const newShort = parseInt($('settingShort').value) || 5;
+    const newLong  = parseInt($('settingLong').value) || 15;
+    const newInterval = parseInt($('settingLongInterval').value) || 4;
+
+    settings.focus = Math.max(1, Math.min(120, newFocus));
+    settings.shortBreak = Math.max(1, Math.min(30, newShort));
+    settings.longBreak = Math.max(1, Math.min(60, newLong));
+    settings.longInterval = Math.max(1, Math.min(10, newInterval));
+    settings.autoStart = $('settingAutoStart').checked;
+
+    // reset current timer with new duration
+    if (!isRunning) {
+      const dur = settings[mode === 'focus' ? 'focus' : mode === 'shortBreak' ? 'shortBreak' : 'longBreak'];
+      maxSeconds = dur * 60;
+      seconds = maxSeconds;
+      updateDisplay();
+      updateRing(1);
+    }
+    closeSettings();
+    saveData();
+  }
+
+  settingsBtn.addEventListener('click', openSettings);
+  modalCloseBtn.addEventListener('click', closeSettings);
+  modalCancel.addEventListener('click', closeSettings);
+  modalSave.addEventListener('click', saveSettings);
+  settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeSettings();
+  });
+
+  // ─── Statistics Modal ──────────────────────────────────────
+  statsBtn.addEventListener('click', () => {
+    $('statMTotal').textContent = totalCompleted;
+    $('statMDaily').textContent = totalCompleted > 0 ? Math.round(totalCompleted / Math.max(1, daysActive())) : 0;
+    $('statMBest').textContent = bestDaily;
+    $('statMStreak').textContent = longestStreak;
+    statsModal.classList.add('open');
+  });
+  statsCloseBtn.addEventListener('click', () => statsModal.classList.remove('open'));
+  statsModal.addEventListener('click', (e) => {
+    if (e.target === statsModal) statsModal.classList.remove('open');
+  });
+
+  function daysActive() {
+    if (!lastActiveDate) return 0;
+    const first = new Date(lastActiveDate);
+    const now = new Date();
+    return Math.max(1, Math.floor((now - first) / (1000*60*60*24)) + 1);
+  }
+
+  // ─── Toast ─────────────────────────────────────────────────
+  let toastTimer = null;
+  function showToast(icon, msg) {
+    toastMsg.textContent = msg;
+    toast.querySelector('.toast-icon').textContent = icon;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // ─── Tasks ─────────────────────────────────────────────────
+  function renderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach((t, i) => {
+      const div = document.createElement('div');
+      div.className = 'task-item';
+      div.innerHTML = `
+        <div class="task-check ${t.done ? 'done' : ''}">${t.done ? '✓' : ''}</div>
+        <span class="task-text ${t.done ? 'done' : ''}">${escapeHtml(t.text)}</span>
+        <span class="task-pomos">🍅 ${t.pomos || 0}</span>
+        <button class="task-del" data-index="${i}">✕</button>
+      `;
+      // check toggle
+      div.querySelector('.task-check').addEventListener('click', () => {
+        tasks[i].done = !tasks[i].done;
+        renderTasks();
+        saveData();
+      });
+      div.querySelector('.task-del').addEventListener('click', (e) => {
+        e.stopPropagation();
+        tasks.splice(i, 1);
+        renderTasks();
+        saveData();
+      });
+      taskList.appendChild(div);
+    });
+  }
+
+  function addTask(text) {
+    text = text.trim();
+    if (!text) return;
+    tasks.unshift({ text, done: false, pomos: 0 });
+    renderTasks();
+    saveData();
+  }
+
+  function addPomoToCurrentTask() {
+    // find first incomplete task and add a pomo
+    const idx = tasks.findIndex(t => !t.done);
+    if (idx !== -1) tasks[idx].pomos = (tasks[idx].pomos || 0) + 1;
+    renderTasks();
+    saveData();
+  }
+
+  taskAddBtn.addEventListener('click', () => { addTask(taskInput.value); taskInput.value = ''; });
+  taskInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { addTask(taskInput.value); taskInput.value = ''; }
+  });
+
+  function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ─── Stats display ─────────────────────────────────────────
+  function updateStats() {
+    statToday.textContent = completedToday;
+    statStreak.textContent = currentStreak;
+    statTotal.textContent = totalCompleted;
+    saveData();
+  }
+
+  // ─── Keyboard shortcuts ────────────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    switch(e.key) {
+      case ' ': e.preventDefault(); mainBtn.click(); break;
+      case 'r': case 'R': resetBtn.click(); break;
+      case 's': case 'S': skipBtn.click(); break;
+      case '1': switchMode('focus'); break;
+      case '2': switchMode('shortBreak'); break;
+      case '3': switchMode('longBreak'); break;
+      case 't': case 'T': taskInput.focus(); break;
+    }
+  });
+
+  // ─── Init ──────────────────────────────────────────────────
+  loadData();
+  applyTheme(theme);
+
+  // set correct mode display
+  timerCard.dataset.mode = 'focus';
+  document.querySelectorAll('.mode-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.mode === 'focus');
+  });
+
+  const dur = settings.focus;
+  maxSeconds = dur * 60;
+  seconds = maxSeconds;
+  updateDisplay();
+  updateRing(1);
+  updateLabel();
+  updateStats();
+  renderTasks();
+
+  // daily streak check at midnight — simple: just re-save on next interaction
+  setInterval(() => {
+    const today = dateStr(new Date());
+    if (lastActiveDate !== today && !isRunning) {
+      // reset daily counter, but keep streak logic
+      completedToday = 0;
+      updateStats();
+    }
+  }, 60000);
+
+  console.log('🍅 番茄钟已启动！');
+  console.log('快捷键: 空格=开始/暂停, R=重置, S=跳过, 1/2/3=切换模式, T=添加任务');
+
+})();
+</script>
+</body>
+</html>
